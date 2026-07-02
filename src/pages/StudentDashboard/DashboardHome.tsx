@@ -1,10 +1,14 @@
 import DashboardLayout from "../../components/layout/DashboardLayout/DashboardLayout";
+import WelcomeBanner from "../../components/dashboard/WelcomeBanner/welcomeBanner";
+import StatCards from "../../components/dashboard/StatsCards/StatsCards";
 
 const DashboardHome = () => {
   return (
     <DashboardLayout>
-      <h1 className="text-3xl font-bold">Welcome Back, John!</h1>
-      <p className="mt-3 text-gray-600">Continue your learning journey.</p>
+      <div className="space-y-8">
+     <WelcomeBanner />
+     <StatCards />
+     </div>
     </DashboardLayout>
   );
 };
