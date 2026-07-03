@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -8,6 +9,14 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const { isAuthenticated, user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+    setOpen(false)
+  }
 
   return (
     <header className="sticky top-0 z-100 bg-navy/85 backdrop-blur-md border-b border-white/8">
@@ -45,18 +54,40 @@ export default function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-2.5 ml-auto">
-          <Link
-            to="/login"
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white-soft border border-white/8 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
-          >
-            Log in
-          </Link>
-          <Link
-            to="/profile"
-            className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo hover:bg-indigo-light hover:-translate-y-px hover:shadow-lg hover:shadow-indigo/40 transition-all duration-200"
-          >
-            Get started
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <span className="text-sm text-muted">
+                Hi, <span className="text-white-soft font-medium">{user?.name}</span>
+              </span>
+              <Link
+                to="/profile"
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-white-soft border border-white/8 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo hover:bg-indigo-light hover:-translate-y-px hover:shadow-lg hover:shadow-indigo/40 transition-all duration-200 cursor-pointer border-none"
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-white-soft border border-white/8 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+              >
+                Log in
+              </Link>
+              <Link
+                to="/profile"
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo hover:bg-indigo-light hover:-translate-y-px hover:shadow-lg hover:shadow-indigo/40 transition-all duration-200"
+              >
+                Get started
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Hamburger */}
@@ -92,20 +123,40 @@ export default function Navbar() {
             </NavLink>
           ))}
           <div className="flex gap-2.5 mt-3">
-            <Link
-              to="/login"
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-white-soft border border-white/8 hover:bg-white/5 transition-all duration-200"
-              onClick={() => setOpen(false)}
-            >
-              Log in
-            </Link>
-            <Link
-              to="/profile"
-              className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo hover:bg-indigo-light transition-all duration-200"
-              onClick={() => setOpen(false)}
-            >
-              Get started
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/profile"
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white-soft border border-white/8 hover:bg-white/5 transition-all duration-200"
+                  onClick={() => setOpen(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo hover:bg-indigo-light transition-all duration-200 cursor-pointer border-none"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white-soft border border-white/8 hover:bg-white/5 transition-all duration-200"
+                  onClick={() => setOpen(false)}
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/profile"
+                  className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo hover:bg-indigo-light transition-all duration-200"
+                  onClick={() => setOpen(false)}
+                >
+                  Get started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
