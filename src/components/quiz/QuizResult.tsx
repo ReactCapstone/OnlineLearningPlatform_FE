@@ -8,19 +8,19 @@ export default function QuizResult({ score, total, onRestart }: QuizResultProps)
   const percentage = Math.round((score / total) * 100)
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-8 text-center shadow-2xl shadow-indigo/10">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo/20 text-2xl font-bold text-indigo-light">
+    <div className="mx-auto w-full rounded-[32px] border border-slate-200 bg-white p-10 text-center shadow-[0_30px_80px_rgba(148,163,184,0.12)] md:max-w-2xl">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-700">
         {percentage}%
       </div>
-      <h2 className="mt-5 text-3xl font-bold text-white-soft">Quiz completed</h2>
-      <p className="mt-3 text-muted">
-        You scored <span className="font-semibold text-white-soft">{score}</span> out of <span className="font-semibold text-white-soft">{total}</span> questions correctly.
+      <h2 className="mt-5 text-3xl font-bold text-slate-900">Quiz completed</h2>
+      <p className="mt-3 text-slate-600">
+        You scored <span className="font-semibold text-slate-900">{score}</span> out of <span className="font-semibold text-slate-900">{total}</span> questions correctly.
       </p>
 
       <button
         type="button"
         onClick={onRestart}
-        className="mt-6 rounded-lg bg-indigo px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-light"
+        className="mt-6 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500"
       >
         Try again
       </button>
