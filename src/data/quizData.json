@@ -1,0 +1,224 @@
+{
+  "courses": [
+    {
+      "courseId": 1,
+      "courseName": "React Fundamentals",
+      "questions": [
+        {
+          "id": 1,
+          "question": "What does JSX stand for?",
+          "difficulty": "easy",
+          "topic": "basics",
+          "options": [
+            { "id": "A", "text": "JavaScript XML" },
+            { "id": "B", "text": "Java Syntax Extension" },
+            { "id": "C", "text": "JavaScript Extension" },
+            { "id": "D", "text": "JSON XML" }
+          ],
+          "correctAnswer": "A"
+        },
+        {
+          "id": 2,
+          "question": "Which hook is used for managing component state?",
+          "difficulty": "easy",
+          "topic": "hooks",
+          "options": [
+            { "id": "A", "text": "useEffect" },
+            { "id": "B", "text": "useState" },
+            { "id": "C", "text": "useMemo" },
+            { "id": "D", "text": "useCallback" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 3,
+          "question": "Which tool is commonly used to bundle a React app?",
+          "difficulty": "easy",
+          "topic": "tooling",
+          "options": [
+            { "id": "A", "text": "Webpack" },
+            { "id": "B", "text": "Photoshop" },
+            { "id": "C", "text": "Figma" },
+            { "id": "D", "text": "Vite" }
+          ],
+          "correctAnswer": "D"
+        },
+        {
+          "id": 4,
+          "question": "What is the purpose of the useEffect hook?",
+          "difficulty": "medium",
+          "topic": "hooks",
+          "options": [
+            { "id": "A", "text": "Manage component styling" },
+            { "id": "B", "text": "Handle side effects and lifecycle" },
+            { "id": "C", "text": "Create animations" },
+            { "id": "D", "text": "Define component props" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 5,
+          "question": "How do you pass data from parent to child component?",
+          "difficulty": "easy",
+          "topic": "components",
+          "options": [
+            { "id": "A", "text": "Using useState" },
+            { "id": "B", "text": "Using props" },
+            { "id": "C", "text": "Using context API" },
+            { "id": "D", "text": "Using refs" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 6,
+          "question": "What is the virtual DOM in React?",
+          "difficulty": "medium",
+          "topic": "concepts",
+          "options": [
+            { "id": "A", "text": "A copy of the real DOM in memory" },
+            { "id": "B", "text": "The actual browser DOM" },
+            { "id": "C", "text": "A JavaScript object representation of the UI" },
+            { "id": "D", "text": "A CSS framework" }
+          ],
+          "correctAnswer": "C"
+        },
+        {
+          "id": 7,
+          "question": "When does the useEffect hook run by default?",
+          "difficulty": "medium",
+          "topic": "hooks",
+          "options": [
+            { "id": "A", "text": "Only once on mount" },
+            { "id": "B", "text": "After every render" },
+            { "id": "C", "text": "Only when dependencies change" },
+            { "id": "D", "text": "Only on unmount" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 8,
+          "question": "What is a controlled component in React?",
+          "difficulty": "hard",
+          "topic": "forms",
+          "options": [
+            { "id": "A", "text": "A component that controls other components" },
+            { "id": "B", "text": "A form element whose value is controlled by React state" },
+            { "id": "C", "text": "A component with complex logic" },
+            { "id": "D", "text": "A component that uses Redux" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 9,
+          "question": "How do you optimize React component performance?",
+          "difficulty": "hard",
+          "topic": "performance",
+          "options": [
+            { "id": "A", "text": "Using React.memo and useMemo" },
+            { "id": "B", "text": "Using useState more frequently" },
+            { "id": "C", "text": "Avoiding functional components" },
+            { "id": "D", "text": "Using console.log statements" }
+          ],
+          "correctAnswer": "A"
+        },
+        {
+          "id": 10,
+          "question": "What is the purpose of React Router?",
+          "difficulty": "medium",
+          "topic": "routing",
+          "options": [
+            { "id": "A", "text": "To style React components" },
+            { "id": "B", "text": "To handle client-side routing in single-page apps" },
+            { "id": "C", "text": "To manage global state" },
+            { "id": "D", "text": "To fetch data from APIs" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 11,
+          "question": "What is Redux used for?",
+          "difficulty": "medium",
+          "topic": "state-management",
+          "options": [
+            { "id": "A", "text": "Styling components" },
+            { "id": "B", "text": "Managing global application state" },
+            { "id": "C", "text": "Handling animations" },
+            { "id": "D", "text": "Creating API requests" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 12,
+          "question": "What is the difference between class and functional components?",
+          "difficulty": "medium",
+          "topic": "components",
+          "options": [
+            { "id": "A", "text": "No difference, they are the same" },
+            { "id": "B", "text": "Functional components use hooks, class components use lifecycle methods" },
+            { "id": "C", "text": "Class components are faster" },
+            { "id": "D", "text": "Functional components cannot have state" }
+          ],
+          "correctAnswer": "B"
+        }
+      ]
+    },
+    {
+      "courseId": 2,
+      "courseName": "TypeScript Basics",
+      "questions": [
+        {
+          "id": 101,
+          "question": "What is TypeScript?",
+          "difficulty": "easy",
+          "topic": "basics",
+          "options": [
+            { "id": "A", "text": "A superset of JavaScript with static typing" },
+            { "id": "B", "text": "A replacement for JavaScript" },
+            { "id": "C", "text": "A CSS framework" },
+            { "id": "D", "text": "A backend runtime" }
+          ],
+          "correctAnswer": "A"
+        },
+        {
+          "id": 102,
+          "question": "How do you define a variable with a specific type in TypeScript?",
+          "difficulty": "easy",
+          "topic": "types",
+          "options": [
+            { "id": "A", "text": "var name = 'John'" },
+            { "id": "B", "text": "let name: string = 'John'" },
+            { "id": "C", "text": "type name = 'John'" },
+            { "id": "D", "text": "const name {'string'}" }
+          ],
+          "correctAnswer": "B"
+        },
+        {
+          "id": 103,
+          "question": "What is an interface in TypeScript?",
+          "difficulty": "medium",
+          "topic": "interfaces",
+          "options": [
+            { "id": "A", "text": "A way to define the structure of objects" },
+            { "id": "B", "text": "A way to create instances" },
+            { "id": "C", "text": "A CSS component" },
+            { "id": "D", "text": "A loop structure" }
+          ],
+          "correctAnswer": "A"
+        },
+        {
+          "id": 104,
+          "question": "What are generics in TypeScript?",
+          "difficulty": "hard",
+          "topic": "advanced",
+          "options": [
+            { "id": "A", "text": "Generic HTML elements" },
+            { "id": "B", "text": "A way to create reusable types that work with multiple data types" },
+            { "id": "C", "text": "A styling technique" },
+            { "id": "D", "text": "A form component" }
+          ],
+          "correctAnswer": "B"
+        }
+      ]
+    }
+  ]
+}
