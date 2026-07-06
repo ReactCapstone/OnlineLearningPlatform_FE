@@ -1,10 +1,18 @@
+import DashboardLayout from "../../components/layout/DashboardLayout/DashboardLayout";
+import WelcomeBanner from "../../components/dashboard/WelcomeBanner/welcomeBanner";
+import StatCards from "../../components/dashboard/StatsCards/StatsCards";
+import ContinueLearning from "../../components/dashboard/ContinueLearning/ContinueLearning";
+
 const DashboardHome = () => {
   return (
-    <div className="text-3xl font-bold p-10">
-        {/* flex flex-col items-center justify-center min-h-screen bg-gray-100 */}
-        <h1>Welcome to the Student Dashboard</h1>
-    </div>
-  )
-}
+    <DashboardLayout>
+      <div className="space-y-8">
+     <WelcomeBanner />
+     <StatCards />
+     <ContinueLearning />
+     </div>
+    </DashboardLayout>
+  );
+};
 
 export default DashboardHome
