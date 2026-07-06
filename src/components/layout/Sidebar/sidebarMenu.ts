@@ -26,7 +26,7 @@ export const sidebarMenu = [
     {
         title:"Assessments",
         icon: FiFileText, 
-        path:"/assessments"
+        path:"/dashboard/assessments"
     },
     {
         title:"My Certificates",

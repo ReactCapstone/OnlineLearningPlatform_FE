@@ -85,7 +85,7 @@ export default function Quiz() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
+    <div className="w-full bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-8">
         <div className="rounded-[32px] border border-slate-200 bg-white px-8 py-8 shadow-[0_30px_80px_rgba(148,163,184,0.15)]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
