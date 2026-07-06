@@ -5,10 +5,10 @@ const initialState: DashboardState = {
     studentName: 'Komal Gupta',
     dailyGoal: '2 Hours',
     statistics: {
-        enrolledCourses: 5,
-        inProgressCourses: 3,
-        completedCourses: 2,
-        certificatesEarned: 1,
+        enrolledCourses: 12,
+        inProgressCourses: 7,
+        completedCourses: 5,
+        certificatesEarned: 4,
     },
 };
 

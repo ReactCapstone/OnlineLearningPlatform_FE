@@ -16,8 +16,8 @@ const StatsCard = ({ title, value, icon, color }: Props) => {
                 </p>
                 <h2 className="text-4xl font-bold mt-3">{value}</h2>
             </div>
-            <div className={`bg-${color} text-white p-4 rounded-xl`}>
-                {icon}
+            <div className={`${color} text-white p-4 rounded-full`}>
+                 {icon}
             </div>
         </div>
     );

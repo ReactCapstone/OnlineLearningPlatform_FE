@@ -5,6 +5,9 @@ export interface Course{
     progress: number;
     instructor: string;
     duration: string;
+    totalLessons?: number;
+    completedLessons?: number;
+    currentLesson?: string;
 }
 
 export interface StudentState{
