@@ -1,41 +1,6 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { Link } from 'react-router-dom'
 
 export default function Login() {
-  const { login, isLoading, error, clearError, isAuthenticated } = useAuth()
-  const navigate = useNavigate()
-
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' })
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (isAuthenticated) navigate('/')
-  }, [isAuthenticated, navigate])
-
-  // Clear auth error when user starts typing
-  useEffect(() => {
-    if (error) clearError()
-  }, [email, password])
-
-  const validate = () => {
-    const errors = { email: '', password: '' }
-    if (!email) errors.email = 'Email is required'
-    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Enter a valid email'
-    if (!password) errors.password = 'Password is required'
-    else if (password.length < 6) errors.password = 'Password must be at least 6 characters'
-    setFieldErrors(errors)
-    return !errors.email && !errors.password
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validate()) return
-    await login(email, password)
-  }
-
   return (
     <div className="min-h-[calc(100vh-64px)] bg-white flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-[420px]">
@@ -49,35 +14,15 @@ export default function Login() {
           <p className="text-gray-500 text-sm">Log in to continue your learning journey.</p>
         </div>
 
-        {/* Auth error banner */}
-        {error && (
-          <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2.5">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" className="shrink-0">
-              <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
-            </svg>
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-gray-700">Email</span>
             <input
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              disabled={isLoading}
-              className={`px-4 py-2.5 rounded-lg border text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                ${fieldErrors.email
-                  ? 'border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-200'
-                  : 'border-gray-200 focus:border-indigo focus:ring-2 focus:ring-indigo/20'
-                }`}
+              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
             />
-            {fieldErrors.email && (
-              <span className="text-xs text-red-500">{fieldErrors.email}</span>
-            )}
           </label>
 
           <label className="flex flex-col gap-1.5">
@@ -90,36 +35,16 @@ export default function Login() {
             <input
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              disabled={isLoading}
-              className={`px-4 py-2.5 rounded-lg border text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                ${fieldErrors.password
-                  ? 'border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-200'
-                  : 'border-gray-200 focus:border-indigo focus:ring-2 focus:ring-indigo/20'
-                }`}
+              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
             />
-            {fieldErrors.password && (
-              <span className="text-xs text-red-500">{fieldErrors.password}</span>
-            )}
           </label>
 
           <button
-            type="submit"
-            disabled={isLoading}
-            className="mt-1 w-full py-2.5 rounded-lg bg-indigo hover:bg-indigo-light text-white text-sm font-semibold transition-colors duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                </svg>
-                Logging in...
-              </>
-            ) : 'Log in'}
+            type="button"
+            className="mt-1 w-full py-2.5 rounded-lg bg-indigo hover:bg-indigo-light text-white text-sm font-semibold transition-colors duration-200 cursor-pointer">
+            Log in
           </button>
-        </form>
+        </div>
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-6">
@@ -128,7 +53,7 @@ export default function Login() {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        {/* OAuth */}
+        {/* Google */}
         <button className="w-full py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 flex items-center justify-center gap-2.5 transition-colors duration-200 cursor-pointer">
           <svg width="16" height="16" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

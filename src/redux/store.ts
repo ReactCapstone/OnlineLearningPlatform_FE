@@ -1,8 +1,12 @@
-import { configureStore } from "@reduxjs/toolkit"
+import {configureStore} from "@reduxjs/toolkit";
+
+import studentReducer from "./student/studentSlice";
+import dashboardReducer from "./dashboard/dashboardSlice";
 
 export const store = configureStore({
   reducer: {
-    _placeholder: () => null,
+    student: studentReducer,
+    dashboard: dashboardReducer,
   }
 })
 
