@@ -40,12 +40,13 @@ export default function Login() {
           </label>
 
           {/* Log in button */}
-          <button
-            type="button"
-            className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo to-purple-500 hover:from-indigo-light hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo/20"
+          <Link
+            to="/DashboardHome"
+            className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo to-purple-500 hover:from-indigo-light hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo/20 text-center"
+            role="button"
           >
             Log in
-          </button>
+          </Link>
         </div>
 
         {/* Divider */}
