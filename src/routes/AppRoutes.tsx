@@ -7,6 +7,7 @@ import AllCourses from '../pages/AllCourses'
 import Login from '../pages/Login'
 import Profile from '../pages/Profile'
 import Register from '../pages/Register'
+import Quiz from '../pages/Quiz'
 
 export default function AppRoutes() {
   return (
@@ -18,6 +19,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/assessments" element={<Quiz />} />
     </Routes>
   )
 }

@@ -1,0 +1,167 @@
+[
+  {
+    "id": 1,
+    "question": "What is React primarily used for?",
+    "options": [
+      "Building user interfaces",
+      "Managing databases",
+      "Writing server scripts",
+      "Designing graphics"
+    ],
+    "correctAnswer": "Building user interfaces"
+  },
+  {
+    "id": 2,
+    "question": "Which hook is used to manage state in a functional component?",
+    "options": [
+      "useEffect",
+      "useState",
+      "useMemo",
+      "useRef"
+    ],
+    "correctAnswer": "useState"
+  },
+  {
+    "id": 3,
+    "question": "What does JSX stand for?",
+    "options": [
+      "JavaScript XML",
+      "Java Syntax Extension",
+      "JavaScript Extension",
+      "JSON XML"
+    ],
+    "correctAnswer": "JavaScript XML"
+  },
+  {
+    "id": 4,
+    "question": "Which tool is commonly used to build React applications quickly?",
+    "options": [
+      "Vite",
+      "MongoDB",
+      "Docker",
+      "Express"
+    ],
+    "correctAnswer": "Vite"
+  },
+  {
+    "id": 5,
+    "question": "In React, props are used to:",
+    "options": [
+      "Store local state",
+      "Pass data from parent to child",
+      "Trigger side effects",
+      "Create routes"
+    ],
+    "correctAnswer": "Pass data from parent to child"
+  },
+  {
+    "id": 6,
+    "question": "Which of the following is a valid React component type?",
+    "options": [
+      "Function component",
+      "Class component",
+      "Both function and class components",
+      "Only HTML tags"
+    ],
+    "correctAnswer": "Both function and class components"
+  },
+  {
+    "id": 7,
+    "question": "What is the purpose of useEffect?",
+    "options": [
+      "To manage form values",
+      "To perform side effects",
+      "To style components",
+      "To create context"
+    ],
+    "correctAnswer": "To perform side effects"
+  },
+  {
+    "id": 8,
+    "question": "Which package is used for routing in React applications?",
+    "options": [
+      "react-router-dom",
+      "redux",
+      "axios",
+      "tailwindcss"
+    ],
+    "correctAnswer": "react-router-dom"
+  },
+  {
+    "id": 9,
+    "question": "What is the default export syntax used for in a module?",
+    "options": [
+      "To import a function",
+      "To export a single value",
+      "To create an array",
+      "To define CSS"
+    ],
+    "correctAnswer": "To export a single value"
+  },
+  {
+    "id": 10,
+    "question": "Which CSS approach is commonly paired with React for fast UI styling?",
+    "options": [
+      "Tailwind CSS",
+      "Perl",
+      "Fortran",
+      "Assembly"
+    ],
+    "correctAnswer": "Tailwind CSS"
+  },
+  {
+    "id": 11,
+    "question": "What does the spread operator do in JavaScript?",
+    "options": [
+      "Copies properties from one object to another",
+      "Creates a database connection",
+      "Deletes items from an array",
+      "Compiles JSX"
+    ],
+    "correctAnswer": "Copies properties from one object to another"
+  },
+  {
+    "id": 12,
+    "question": "Which keyword is used to create a component in React?",
+    "options": [
+      "function",
+      "class",
+      "const",
+      "return"
+    ],
+    "correctAnswer": "function"
+  },
+  {
+    "id": 13,
+    "question": "What does the map() function do in JavaScript?",
+    "options": [
+      "Creates a new array from an existing one",
+      "Deletes all elements",
+      "Sorts objects by value",
+      "Opens a network connection"
+    ],
+    "correctAnswer": "Creates a new array from an existing one"
+  },
+  {
+    "id": 14,
+    "question": "Which state management library is commonly used with React?",
+    "options": [
+      "Redux",
+      "MySQL",
+      "Node.js",
+      "Bootstrap"
+    ],
+    "correctAnswer": "Redux"
+  },
+  {
+    "id": 15,
+    "question": "What does npm stand for?",
+    "options": [
+      "Node Package Manager",
+      "New Package Module",
+      "Network Package Manager",
+      "Null Package Mode"
+    ],
+    "correctAnswer": "Node Package Manager"
+  }
+]
