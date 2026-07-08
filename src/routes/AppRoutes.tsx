@@ -8,6 +8,7 @@ import Login from '../pages/Login'
 import Profile from '../pages/Profile'
 import Register from '../pages/Register'
 import Quiz from '../pages/Quiz'
+import Wishlist from '../pages/Wishlist'
 
 export default function AppRoutes() {
   return (
@@ -20,6 +21,7 @@ export default function AppRoutes() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/register" element={<Register />} />
       <Route path="/assessments" element={<Quiz />} />
+      <Route path="/wishlist" element={<Wishlist />} />
     </Routes>
   )
 }

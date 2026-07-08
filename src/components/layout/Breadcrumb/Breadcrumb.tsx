@@ -2,14 +2,26 @@ import { useLocation } from 'react-router-dom';
 
 const Breadcrumb = () => {
   const location = useLocation();
-  const pathName = location.pathname.replace(/^\//, '').replace(/-/g, ' ');
-  const currentPage = pathName ? pathName.charAt(0).toUpperCase() + pathName.slice(1) : 'Dashboard';
+  const segments = location.pathname
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => segment.replace(/-/g, ' '));
+
+  const titleCase = (text: string) =>
+    text
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
 
   return (
     <div className="px-8 py-4 text-sm text-blue-800">
-      Home
-      <span className="mx-2">{'>'}</span>
-      {currentPage}
+      <span>Home</span>
+      {segments.map((segment, index) => (
+        <span key={segment} className="inline-flex items-center">
+          <span className="mx-2">{'>'}</span>
+          <span>{titleCase(segment)}</span>
+        </span>
+      ))}
     </div>
   );
 };
