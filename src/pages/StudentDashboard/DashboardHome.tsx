@@ -2,21 +2,10 @@ import DashboardLayout from "../../components/layout/DashboardLayout/DashboardLa
 import WelcomeBanner from "../../components/dashboard/WelcomeBanner/welcomeBanner";
 import StatCards from "../../components/dashboard/StatsCards/StatsCards";
 import ContinueLearning from "../../components/dashboard/ContinueLearning/ContinueLearning";
-import RecommendedCourses
-
-from "../../components/dashboard/RecommendedCourses/RecommendedCourses";
-
-import UpcomingClasses
-
-from "../../components/dashboard/UpcomingClasses/UpcomingClasses";
-
-import RecentActivity
-
-from "../../components/dashboard/RecentActivity/RecentActivity";
-
-import LearningGoals
-
-from "../../components/dashboard/LearningGoals/LearningGoals";
+import RecommendedCourses from "../../components/dashboard/RecommendedCourses/RecommendedCourses";
+import UpcomingClasses from "../../components/dashboard/UpcomingClasses/UpcomingClasses";
+import RecentActivity from "../../components/dashboard/RecentActivity/RecentActivity";
+import LearningGoals from "../../components/dashboard/LearningGoals/LearningGoals";
 
 const DashboardHome = () => {
   return (

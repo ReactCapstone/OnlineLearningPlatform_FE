@@ -39,9 +39,11 @@ export default function Login() {
             />
           </label>
 
+          {/* Log in button */}
           <button
             type="button"
-            className="mt-1 w-full py-2.5 rounded-lg bg-indigo hover:bg-indigo-light text-white text-sm font-semibold transition-colors duration-200 cursor-pointer">
+            className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo to-purple-500 hover:from-indigo-light hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo/20"
+          >
             Log in
           </button>
         </div>
@@ -64,13 +66,16 @@ export default function Login() {
           Continue with Google
         </button>
 
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Don't have an account?{' '}
-          <Link to="/profile" className="text-indigo hover:text-indigo-light font-medium transition-colors">
-            Sign up free
+        {/* Sign up */}
+        <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-100 text-center">
+          <p className="text-sm text-gray-500 mb-3">Don't have an account yet?</p>
+          <Link
+            to="/register"
+            className="block w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo to-purple-500 hover:from-indigo-light hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 shadow-md shadow-indigo/20"
+          >
+            Sign up for free
           </Link>
-        </p>
+        </div>
 
       </div>
     </div>
