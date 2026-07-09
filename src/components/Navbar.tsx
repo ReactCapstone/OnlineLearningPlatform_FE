@@ -16,10 +16,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-1.5 shrink-0">
           <span className="flex items-center justify-center w-8 h-8 bg-indigo text-white font-display font-extrabold text-base rounded-lg">
-            O
+            NV
           </span>
           <span className="font-display font-bold text-lg text-white-soft ml-1">
-            nlineLearningPlatform
+            LearnHub
           </span>
         </Link>
 
