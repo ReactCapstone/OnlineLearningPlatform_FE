@@ -22,6 +22,10 @@ export interface StudentState{
     
 }
 
+export interface WishlistState {
+    items: Course[];
+}
+
 export interface RecommendedCourse {
 
     id:number;
