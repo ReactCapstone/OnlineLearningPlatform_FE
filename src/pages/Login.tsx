@@ -2,15 +2,15 @@ import { Link } from 'react-router-dom'
 
 export default function Login() {
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-white flex items-center justify-center px-6 py-12">
+    <div className="min-h-[calc(100vh-64px)] bg-white flex items-center justify-center px-6 py-12" style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="w-full max-w-[420px]">
 
         {/* Header */}
         <div className="mb-8">
-          <Link to="/" className="inline-flex items-center justify-center w-9 h-9 bg-indigo rounded-lg mb-6">
-            <span className="font-display font-extrabold text-white text-base">L</span>
+          <Link to="/" className="inline-flex items-center justify-center w-9 h-9 bg-gradient-to-r from-indigo-600 to-purple-500 rounded-lg mb-6">
+            <span className="font-extrabold text-white text-base">L</span>
           </Link>
-          <h1 className="font-display text-3xl font-bold text-gray-900 mb-1">Welcome back</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">Welcome back</h1>
           <p className="text-gray-500 text-sm">Log in to continue your learning journey.</p>
         </div>
 
@@ -21,28 +21,28 @@ export default function Login() {
             <input
               type="email"
               placeholder="you@example.com"
-              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
+              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
             />
           </label>
 
           <label className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">Password</span>
-              <span className="text-xs text-indigo hover:text-indigo-light cursor-pointer transition-colors">
+              <span className="text-xs text-indigo-600 hover:text-indigo-500 cursor-pointer transition-colors">
                 Forgot password?
               </span>
             </div>
             <input
               type="password"
               placeholder="••••••••"
-              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
+              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
             />
           </label>
 
           {/* Log in button */}
           <Link
-            to="/DashboardHome"
-            className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo to-purple-500 hover:from-indigo-light hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo/20 text-center"
+            to="/dashboard"
+            className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo-500/20 text-center block"
             role="button"
           >
             Log in
@@ -72,7 +72,7 @@ export default function Login() {
           <p className="text-sm text-gray-500 mb-3">Don't have an account yet?</p>
           <Link
             to="/register"
-            className="block w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo to-purple-500 hover:from-indigo-light hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 shadow-md shadow-indigo/20"
+            className="block w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 shadow-md shadow-indigo-500/20"
           >
             Sign up for free
           </Link>
