@@ -16,7 +16,7 @@
 
   --radius-card: 14px;
   --radius-sm: 8px;
-}
+} */
 
 @layer base {
   *, *::before, *::after {
@@ -50,7 +50,7 @@
   ul {
     list-style: none;
   }
-} */
+}
 
 body{
     margin: 0;

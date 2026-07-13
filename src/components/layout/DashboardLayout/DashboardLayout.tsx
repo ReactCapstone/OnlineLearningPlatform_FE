@@ -9,12 +9,14 @@ interface Props {
 
 const DashboardLayout = ({children}: Props) => {
   return (
-    <div className="flex bg-gray-100">
-        <Sidebar />
-        <div className="flex-1">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
+        <div className="w-64 shrink-0">
+            <Sidebar />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
             <Header />
             <Breadcrumb />
-            <main className="p-8">
+            <main className="flex-1 overflow-y-auto p-8">
                 {children}
             </main>
         </div>

@@ -42,6 +42,112 @@ const initialState: StudentState = {
             currentLesson: 'Data Analysis with Pandas'
         }
     ],
+
+    recommendedCourses:[
+
+{
+
+id:1,
+
+title:"Next.js Bootcamp",
+
+instructor:"Maximilian",
+
+image:"https://picsum.photos/400/250?4",
+
+rating:4.9,
+
+duration:"14 Hours",
+
+students:23500
+
+},
+
+{
+
+id:2,
+
+title:"Node.js API Masterclass",
+
+instructor:"Andrew Mead",
+
+image:"https://picsum.photos/400/250?5",
+
+rating:4.8,
+
+duration:"18 Hours",
+
+students:17200
+
+}
+
+],
+
+upcomingClasses:[
+
+{
+
+id:1,
+
+title:"React Performance",
+
+date:"Monday",
+
+time:"7:00 PM",
+
+instructor:"John Smith"
+
+},
+
+{
+
+id:2,
+
+title:"Redux Toolkit Live",
+
+date:"Wednesday",
+
+time:"8:30 PM",
+
+instructor:"David Warner"
+
+}
+
+],
+
+activities:[
+
+{
+
+id:1,
+
+activity:"Completed React Hooks Module",
+
+time:"Today"
+
+},
+
+{
+
+id:2,
+
+activity:"Quiz Submitted",
+
+time:"Yesterday"
+
+},
+
+{
+
+id:3,
+
+activity:"Certificate Earned",
+
+time:"2 Days Ago"
+
+}
+
+]
 };
 
 const studentSlice = createSlice({
