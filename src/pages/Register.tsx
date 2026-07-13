@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../redux/hooks'
+import { registerUser } from '../redux/auth/authSlice'
+import { selectAuthLoading, selectAuthError } from '../redux/auth/authSelectors'
 
 const EXPERTISE_OPTIONS = [
   'Frontend Development',
@@ -14,6 +17,14 @@ const EXPERTISE_OPTIONS = [
   'Other',
 ]
 
+interface FormErrors {
+  firstName?: string
+  lastName?: string
+  email?: string
+  password?: string
+  confirmPassword?: string
+}
+
 export default function Register() {
   const [form, setForm] = useState({
     firstName: '',
@@ -24,16 +35,105 @@ export default function Register() {
     yearsOfExperience: '',
     areaOfExpertise: '',
   })
-  const [showSuccess, setShowSuccess] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const initialFormState = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    yearsOfExperience: '',
+    areaOfExpertise: '',
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [showSuccess, setShowSuccess] = useState(false)
+
+  const dispatch = useAppDispatch()
+  const loading = useAppSelector(selectAuthLoading)
+  const apiError = useAppSelector(selectAuthError)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+    // clear that field's error as soon as the user edits it
+    setErrors(prev => ({ ...prev, [name]: undefined }))
+  }
+
+  // ── Client-side validation ──────────────────────────────────────────────
+  const validate = (): FormErrors => {
+    const newErrors: FormErrors = {}
+
+    if (!form.firstName.trim()) newErrors.firstName = 'First name is required.'
+    if (!form.lastName.trim()) newErrors.lastName = 'Last name is required.'
+
+    if (!form.email.trim()) {
+      newErrors.email = 'Email is required.'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = 'Enter a valid email address.'
+    }
+
+    if (!form.password) {
+      newErrors.password = 'Password is required.'
+    } else if (form.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters.'
+    }
+
+    if (!form.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password.'
+    } else if (form.password !== form.confirmPassword) {
+      newErrors.confirmPassword = "Passwords don't match."
+    }
+
+    // if (form.yearsOfExperience === '') {
+    //   newErrors.yearsOfExperience = 'Years of experience is required.'
+    // } else if (Number(form.yearsOfExperience) < 0 || Number(form.yearsOfExperience) > 50) {
+    //   newErrors.yearsOfExperience = 'Enter a value between 0 and 50.'
+    // }
+
+    // if (!form.areaOfExpertise) newErrors.areaOfExpertise = 'Please select an area.'
+
+    return newErrors
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: connect to backend
-    setShowSuccess(true)
+
+    const validationErrors = validate()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
+    const result = await dispatch(registerUser({
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      password: form.password,
+      confirmPassword: form.confirmPassword,
+      yearsOfExperience: form.yearsOfExperience === '' ? null : Number(form.yearsOfExperience),
+      areaOfExpertise: form.areaOfExpertise === '' ? null : form.areaOfExpertise,
+    }))
+
+    if (registerUser.fulfilled.match(result)) {
+      setShowSuccess(true)
+    } else {
+      // // result.payload is the string from rejectWithValue(err.message)
+      // const message = (result.payload as string) || 'Registration failed.'
+
+      // // Map known backend messages to the specific field they relate to
+      // if (message.toLowerCase().includes('email')) {
+      //   setErrors(prev => ({ ...prev, email: message }))
+      // } else {
+      //   setErrors(prev => ({ ...prev, general: message } as FormErrors))
+      // }
+    }
+  }
+
+  const stayOnPage = () => {
+    setShowSuccess(false)
+    setForm(initialFormState)
+    setErrors({})
   }
 
   return (
@@ -48,6 +148,12 @@ export default function Register() {
           <h1 className="font-display text-3xl font-bold text-gray-900 mb-1">Create an account</h1>
           <p className="text-gray-500 text-sm">Start your learning journey with Learnify.</p>
         </div>
+
+        {(apiError) && (
+          <div className="mb-5 px-4 py-2.5 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
+            {apiError}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -65,6 +171,7 @@ export default function Register() {
                 required
                 className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
               />
+              {errors.firstName && <span className="text-xs text-red-500">{errors.firstName}</span>}
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-gray-700">Last Name</span>
@@ -77,6 +184,7 @@ export default function Register() {
                 required
                 className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
               />
+              {errors.lastName && <span className="text-xs text-red-500">{errors.lastName}</span>}
             </label>
           </div>
 
@@ -92,6 +200,7 @@ export default function Register() {
               required
               className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
             />
+            {errors.email && <span className="text-xs text-red-500">{errors.email}</span>}
           </label>
 
           {/* Password row */}
@@ -107,6 +216,7 @@ export default function Register() {
                 required
                 className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
               />
+              {errors.password && <span className="text-xs text-red-500">{errors.password}</span>}
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-gray-700">Confirm Password</span>
@@ -119,6 +229,7 @@ export default function Register() {
                 required
                 className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
               />
+              {errors.confirmPassword && <span className="text-xs text-red-500">{errors.confirmPassword}</span>}
             </label>
           </div>
 
@@ -133,7 +244,6 @@ export default function Register() {
               placeholder="e.g. 3"
               min="0"
               max="50"
-              required
               className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
             />
           </label>
@@ -145,7 +255,6 @@ export default function Register() {
               name="areaOfExpertise"
               value={form.areaOfExpertise}
               onChange={handleChange}
-              required
               className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all bg-white cursor-pointer"
             >
               <option value="" disabled>Select your area</option>
@@ -160,7 +269,7 @@ export default function Register() {
             type="submit"
             className="mt-2 w-full py-2.5 rounded-lg bg-indigo hover:bg-indigo-light text-white text-sm font-semibold transition-colors duration-200 cursor-pointer"
           >
-            Create account
+            {loading ? 'Creating account...' : 'Create account'}
           </button>
         </form>
 
@@ -199,7 +308,7 @@ export default function Register() {
               Go to login
             </Link>
             <button
-              onClick={() => setShowSuccess(false)}
+              onClick={stayOnPage}
               className="mt-3 w-full py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-600 transition-colors duration-200 cursor-pointer"
             >
               Stay on page

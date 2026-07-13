@@ -134,28 +134,25 @@ export default function Courses() {
     : ALL_COURSES.filter(c => c.category === active)
 
   return (
-    <div className="min-h-[60vh]">
+    <div className="min-h-[60vh] bg-slate-100">
 
       {/* Page header */}
-      <div
-        className="border-b border-white/8 px-6 pt-16 pb-12"
-        style={{ background: 'linear-gradient(180deg, rgba(79,70,229,0.1) 0%, transparent 100%)' }}
-      >
+      <div className="border-b border-slate-200 bg-white px-6 pt-16 pb-12 shadow-sm">
         <div className="max-w-[1200px] mx-auto">
-          <span className="inline-block text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-indigo-light bg-indigo/18 border border-indigo/30 px-3 py-1 rounded-full mb-3.5">
+          <span className="inline-block text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full mb-3.5">
             All courses
           </span>
-          <h1 className="text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold text-white-soft mb-2">
+          <h1 className="text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold text-slate-900 mb-2">
             Expand your skillset
           </h1>
-          <p className="text-base text-muted">
+          <p className="text-base text-slate-600">
             {ALL_COURSES.length} courses across design, engineering, data, and more.
           </p>
         </div>
       </div>
 
       {/* Filter bar */}
-      <div className="sticky top-16 z-50 bg-navy/92 backdrop-blur-md border-b border-white/8 px-6 py-3">
+      <div className="sticky top-16 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 py-3 shadow-sm">
         <div className="max-w-[1200px] mx-auto flex gap-2 flex-wrap">
           {CATEGORIES.map(cat => (
             <button
@@ -163,8 +160,8 @@ export default function Courses() {
               onClick={() => setActive(cat)}
               className={`px-4 py-1.5 rounded-full text-[0.82rem] font-medium border cursor-pointer transition-all duration-150
                 ${active === cat
-                  ? 'bg-indigo text-white border-indigo'
-                  : 'bg-transparent text-muted border-white/8 hover:text-white-soft hover:border-white/20 hover:bg-white/5'
+                  ? 'bg-slate-900 text-white border-slate-900'
+                  : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50'
                 }`}
             >
               {cat}
@@ -175,8 +172,8 @@ export default function Courses() {
 
       {/* Grid */}
       <div className="max-w-[1200px] mx-auto px-6 pt-10 pb-20">
-        <p className="text-sm text-muted mb-6">
-          Showing <strong className="text-white-soft">{filtered.length}</strong> course{filtered.length !== 1 ? 's' : ''}
+        <p className="text-sm text-slate-600 mb-6">
+          Showing <strong className="text-slate-900">{filtered.length}</strong> course{filtered.length !== 1 ? 's' : ''}
           {active !== 'All' ? ` in ${active}` : ''}
         </p>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
