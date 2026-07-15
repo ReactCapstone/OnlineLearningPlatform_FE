@@ -11,6 +11,7 @@ const ALL_COURSES: Course[] = [
     description: 'Learn to craft beautiful, user-centred interfaces from wireframes to polished prototypes.',
     duration: '6h 30m',
     lessons: 24,
+    url: 'https://www.youtube.com/watch?v=2QQQtiFwXjU&list=PLTZYG7bZ1u6oHnGp4Ib3n0y-CmFQdTW6r',
   },
   {
     id: 2,
@@ -21,6 +22,7 @@ const ALL_COURSES: Course[] = [
     description: 'Build production-ready apps with React 18, TypeScript, and modern tooling.',
     duration: '9h 15m',
     lessons: 36,
+    url: 'https://www.youtube.com/watch?v=TiSGujM22OI&list=PLC3y8-rFHvwi1AXijGTKM0BKtHzVC-LSK',
   },
   {
     id: 3,
@@ -31,6 +33,7 @@ const ALL_COURSES: Course[] = [
     description: 'Design scalable server-side applications and RESTful APIs with Node, Express, and PostgreSQL.',
     duration: '8h 00m',
     lessons: 30,
+    url: 'https://www.youtube.com/watch?v=0oXYLzuucwE&list=PL55RiY5tL51q4D-B63KBnygU6opNPFk_q',
   },
   {
     id: 4,
@@ -41,6 +44,7 @@ const ALL_COURSES: Course[] = [
     description: 'Go from data wrangling to deploying ML models using scikit-learn and PyTorch.',
     duration: '11h 45m',
     lessons: 42,
+    url: 'https://www.youtube.com/watch?v=GwIo3gDZCVQ&list=PL9ooVrP1hQOHUfd-g8GUpKI3hHOwM_9Dn',
   },
   {
     id: 5,
@@ -51,6 +55,7 @@ const ALL_COURSES: Course[] = [
     description: 'Master CI/CD pipelines, Docker, Kubernetes, and AWS fundamentals.',
     duration: '7h 20m',
     lessons: 28,
+    url: 'https://www.youtube.com/watch?v=SOTamWNgDKc&list=PLWKjhJtqVAbkzvvpY12KkfiIGso9A_Ixs',
   },
   {
     id: 6,
@@ -61,6 +66,7 @@ const ALL_COURSES: Course[] = [
     description: 'Understand OWASP threats, penetration testing, and how to build secure web apps.',
     duration: '5h 50m',
     lessons: 22,
+    url: 'https://www.youtube.com/watch?v=oKgnYe_6uh8&list=PLWPirh4EWFpEK7BXbMvKDYuHhA4AiYLDb',
   },
   {
     id: 7,
@@ -71,6 +77,7 @@ const ALL_COURSES: Course[] = [
     description: 'Turn raw datasets into actionable insights using Python, Pandas, and Matplotlib.',
     duration: '5h 00m',
     lessons: 20,
+    url: 'https://www.youtube.com/watch?v=gtjxAH8uaP0',
   },
   {
     id: 8,
@@ -81,6 +88,7 @@ const ALL_COURSES: Course[] = [
     description: 'Build cross-platform iOS and Android apps with a single React Native codebase.',
     duration: '10h 30m',
     lessons: 38,
+    url: 'https://www.youtube.com/watch?v=hzzCveeczSQ&list=PLC3y8-rFHvwhiQJD1di4eRVN30WWCXkg1',
   },
   {
     id: 9,
@@ -91,6 +99,7 @@ const ALL_COURSES: Course[] = [
     description: 'Deep-dive into CSS Grid, custom properties, and scroll-driven animations.',
     duration: '4h 15m',
     lessons: 18,
+    url: 'https://www.youtube.com/watch?v=jgw82b5Y2MU&list=PL4cUxeGkcC9iGYgmEd2dm3zAKzyCGDtM5',
   },
   {
     id: 10,
@@ -101,6 +110,7 @@ const ALL_COURSES: Course[] = [
     description: 'Crack technical interviews and level up your problem-solving with DSA in JavaScript.',
     duration: '13h 00m',
     lessons: 50,
+    url: 'https://www.youtube.com/watch?v=yRpLlJmRo2w&list=PLfqMhTWNBTe3LtFWcvwpqTkUSlB32kJop',
   },
   {
     id: 11,
@@ -111,6 +121,7 @@ const ALL_COURSES: Course[] = [
     description: 'A project-based course building a full-stack shop with Next.js, Prisma, and Stripe.',
     duration: '12h 20m',
     lessons: 44,
+    url: 'https://www.youtube.com/watch?v=glMRU2ER1q8&list=PL7Oro2kvkIzLjKd5pXe6HBMJvExyNiame',
   },
   {
     id: 12,
@@ -121,6 +132,7 @@ const ALL_COURSES: Course[] = [
     description: 'Write clear documentation, give compelling tech talks, and lead effective code reviews.',
     duration: '3h 30m',
     lessons: 14,
+    url: 'https://www.youtube.com/watch?v=vT5pcc30Ffw',
   },
 ]
 
@@ -134,7 +146,7 @@ export default function Courses() {
     : ALL_COURSES.filter(c => c.category === active)
 
   return (
-    <div className="min-h-[60vh] bg-slate-100">
+    <div className="min-h-[60vh] bg-slate-100" style={{ fontFamily: "'Inter', sans-serif" }}>
 
       {/* Page header */}
       <div className="border-b border-slate-200 bg-white px-6 pt-16 pb-12 shadow-sm">
@@ -160,7 +172,7 @@ export default function Courses() {
               onClick={() => setActive(cat)}
               className={`px-4 py-1.5 rounded-full text-[0.82rem] font-medium border cursor-pointer transition-all duration-150
                 ${active === cat
-                  ? 'bg-slate-900 text-white border-slate-900'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white border-transparent'
                   : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50'
                 }`}
             >
