@@ -1,6 +1,8 @@
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { addToWishlist, removeFromWishlist } from '../redux/student/wishlistSlice';
 import { selectWishlistItems } from '../redux/student/wishlistSelectors';
+import { useState } from 'react';
+import wishlistService from '../services/wishlistService';
 
 interface Course {
   id: number
@@ -22,11 +24,24 @@ export default function CourseCard({ course }: CourseCardProps) {
   const wishlistItems = useAppSelector(selectWishlistItems);
   const isWished = wishlistItems.some((item) => item.id === course.id);
 
-  const toggleWishlist = () => {
-    if (isWished) {
-      dispatch(removeFromWishlist(course.id));
-    } else {
-      dispatch(addToWishlist(course));
+  const [loading, setLoading] = useState(false);
+
+  const toggleWishlist = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      if (isWished) {
+        await wishlistService.removeFromWishlist(course.id);
+        dispatch(removeFromWishlist(course.id));
+      } else {
+        await wishlistService.addToWishlist(course.id);
+        dispatch(addToWishlist(course));
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Wishlist API error', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,11 +50,13 @@ export default function CourseCard({ course }: CourseCardProps) {
       <button
         type="button"
         onClick={toggleWishlist}
+        disabled={loading}
+        aria-busy={loading}
         className={`absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border transition ${
           isWished
             ? 'bg-rose-500 text-white border-rose-500 shadow-sm'
             : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
-        }`}
+        } ${loading ? 'opacity-60 pointer-events-none' : ''}`}
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5">
           <path
