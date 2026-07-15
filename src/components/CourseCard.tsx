@@ -106,7 +106,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           </svg>
         </div>
       </div>
-    </a>
+    </div>
   )
 }
 
