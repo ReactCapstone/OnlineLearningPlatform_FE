@@ -8,6 +8,7 @@ import Login from '../pages/Login'
 import Profile from '../pages/Profile'
 import Register from '../pages/Register'
 import Quiz from '../pages/Quiz'
+import Assessments from '../pages/Assessments'
 import Wishlist from '../pages/Wishlist'
 import CoursePlayer from '../pages/CoursePlayer'
 
@@ -21,7 +22,9 @@ export default function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/assessments" element={<Quiz />} />
+            <Route path="/assessments" element={<Assessments />} />
+            <Route path="/quiz/:topicId" element={<Quiz />} />
+            <Route path="/quiz" element={<Quiz />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/course/:courseId" element={<CoursePlayer />} />
         </Routes>
