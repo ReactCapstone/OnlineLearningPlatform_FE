@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 interface Course {
   id: number
   icon: string
@@ -16,10 +18,8 @@ interface CourseCardProps {
 
 export default function CourseCard({ course }: CourseCardProps) {
   return (
-    <a
-      href={course.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      to={`/course/${course.id}`}
       className="flex flex-col gap-3 p-6 bg-white border border-gray-200 rounded-2xl shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-md cursor-pointer group"
     >
       <div
@@ -52,13 +52,13 @@ export default function CourseCard({ course }: CourseCardProps) {
           {course.lessons} lessons
         </div>
         <div className="flex items-center gap-1 text-xs font-medium text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          Watch on YouTube
+          Start learning
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </div>
       </div>
-    </a>
+    </Link>
   )
 }
 

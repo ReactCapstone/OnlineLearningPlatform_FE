@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
 import CourseCard, { type Course } from '../components/CourseCard'
 
 const FEATURED_COURSES: Course[] = [
@@ -26,6 +27,11 @@ const STATS = [
   { value: '4.9★', label: 'Avg. rating' },
 ]
 
+const NAV_LINKS = [
+  { to: '/home', label: 'Home' },
+  { to: '/courses', label: 'Courses' },
+]
+
 function SectionLabel({ children, color = 'indigo' }: { children: string, color?: 'indigo' | 'purple' }) {
   const styles = {
     indigo: 'text-indigo-400 bg-indigo-500/15 border-indigo-500/25',
@@ -45,8 +51,94 @@ const ArrowRight = () => (
 )
 
 export default function Home() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <div className="bg-[#0D1B2A] min-h-screen text-slate-100" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="bg-[#0D1B2A] min-h-screen text-slate-100 flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+
+      {/* ── Navbar ── */}
+      <header className="sticky top-0 z-50 bg-[#0D1B2A]/90 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center gap-8">
+
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <span className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-500 text-white font-extrabold text-sm rounded-lg">
+              NV
+            </span>
+            <span className="font-bold text-lg text-slate-100 ml-1">LearnHub</span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-1.5 flex-1">
+            {NAV_LINKS.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors duration-150
+                  ${isActive ? 'text-slate-100 bg-white/10' : 'text-slate-400 hover:text-slate-100 hover:bg-white/6'}`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center gap-2.5 ml-auto">
+            <Link
+              to="/login"
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-200 border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+            >
+              Log in
+            </Link>
+            <Link
+              to="/register"
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 hover:-translate-y-px shadow-lg shadow-indigo-500/30 transition-all duration-200"
+            >
+              Get started
+            </Link>
+          </div>
+
+          {/* Hamburger */}
+          <button
+            className="md:hidden ml-auto flex flex-col gap-1.5 p-1.5 bg-transparent border-none cursor-pointer"
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            <span className={`block w-5 h-0.5 bg-slate-200 rounded transition-all duration-200 ${open ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-slate-200 rounded transition-all duration-200 ${open ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-slate-200 rounded transition-all duration-200 ${open ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
+        </div>
+
+        {/* Mobile drawer */}
+        {open && (
+          <div className="md:hidden flex flex-col gap-1 px-6 pt-3 pb-5 border-t border-white/10 bg-[#0D1B2A]">
+            {NAV_LINKS.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) =>
+                  `px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150
+                  ${isActive ? 'text-slate-100 bg-white/10' : 'text-slate-400 hover:text-slate-100 hover:bg-white/6'}`
+                }
+                onClick={() => setOpen(false)}
+              >
+                {label}
+              </NavLink>
+            ))}
+            <div className="flex gap-2.5 mt-3">
+              <Link to="/login" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-200 border border-white/10 hover:bg-white/5 transition-all duration-200" onClick={() => setOpen(false)}>
+                Log in
+              </Link>
+              <Link to="/register" className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 transition-all duration-200" onClick={() => setOpen(false)}>
+                Get started
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
 
       {/* ── Hero ── */}
       <section
@@ -61,13 +153,11 @@ export default function Home() {
       >
         <div className="relative max-w-[740px] mx-auto flex flex-col items-center gap-5">
 
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-400 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full">
             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_0_3px_rgba(34,197,94,0.2)]" />
             New courses added every week
           </div>
 
-          {/* Heading */}
           <h1 className="text-[clamp(2.4rem,6vw,4rem)] font-extrabold tracking-tight text-slate-100 leading-[1.1]">
             Learn. Build.
             <br />
@@ -76,13 +166,11 @@ export default function Home() {
             </span>
           </h1>
 
-          {/* Subheading */}
           <p className="text-lg text-slate-400 max-w-[520px] leading-relaxed">
             Practical, project-driven courses taught by industry professionals.
             Go from beginner to job-ready on your own schedule.
           </p>
 
-          {/* CTAs */}
           <div className="flex gap-3 flex-wrap justify-center mt-1">
             <Link
               to="/login"
@@ -98,7 +186,6 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Stats bar */}
           <div className="flex bg-white/5 border border-white/10 rounded-2xl overflow-hidden mt-4">
             {STATS.map(({ value, label }, i) => (
               <div
@@ -110,7 +197,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -160,6 +246,52 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      {/* ── Footer ── */}
+      <footer className="border-t border-white/10 bg-[#0D1B2A] pt-14 pb-6 px-6 mt-auto">
+        <div className="max-w-[1200px] mx-auto flex gap-16 flex-wrap pb-12 border-b border-white/10">
+          <div className="flex-1 min-w-[200px]">
+            <Link to="/" className="flex items-center gap-1.5 mb-3">
+              <span className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-500 text-white font-extrabold text-base rounded-lg">
+                L
+              </span>
+              <span className="font-bold text-lg text-slate-100 ml-1">earnify</span>
+            </Link>
+            <p className="text-sm text-slate-400 max-w-[220px] leading-relaxed">
+              Expand your skills. Accelerate your career.
+            </p>
+          </div>
+
+          <nav className="flex gap-12 flex-wrap">
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-[0.78rem] font-bold tracking-widest uppercase text-slate-100 mb-1">Platform</h4>
+              <Link to="/home" className="text-sm text-slate-400 hover:text-slate-100 transition-colors duration-150">Home</Link>
+              <Link to="/courses" className="text-sm text-slate-400 hover:text-slate-100 transition-colors duration-150">Courses</Link>
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-[0.78rem] font-bold tracking-widest uppercase text-slate-100 mb-1">Account</h4>
+              <Link to="/login" className="text-sm text-slate-400 hover:text-slate-100 transition-colors duration-150">Log in</Link>
+              <Link to="/register" className="text-sm text-slate-400 hover:text-slate-100 transition-colors duration-150">Register</Link>
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <h4 className="text-[0.78rem] font-bold tracking-widest uppercase text-slate-100 mb-1">Company</h4>
+              <span className="text-sm text-slate-400 cursor-pointer hover:text-slate-100 transition-colors duration-150">About us</span>
+              <span className="text-sm text-slate-400 cursor-pointer hover:text-slate-100 transition-colors duration-150">Careers</span>
+              <span className="text-sm text-slate-400 cursor-pointer hover:text-slate-100 transition-colors duration-150">Contact</span>
+            </div>
+          </nav>
+        </div>
+
+        <div className="max-w-[1200px] mx-auto mt-6 flex justify-between items-center flex-wrap gap-3">
+          <p className="text-[0.8rem] text-slate-500">
+            © {new Date().getFullYear()} Learnify. All rights reserved.
+          </p>
+          <div className="flex gap-5">
+            <span className="text-[0.8rem] text-slate-500 cursor-pointer hover:text-slate-100 transition-colors duration-150">Privacy Policy</span>
+            <span className="text-[0.8rem] text-slate-500 cursor-pointer hover:text-slate-100 transition-colors duration-150">Terms of Service</span>
+          </div>
+        </div>
+      </footer>
 
     </div>
   )

@@ -1,8 +1,16 @@
-import { useState } from 'react'
-import CourseCard, { type Course } from '../components/CourseCard'
-import Sidebar from '../components/layout/Sidebar/sidebar'
+export interface Course {
+  id: number
+  icon: string
+  iconBg: string
+  category: string
+  title: string
+  description: string
+  duration: string
+  lessons: number
+  url: string
+}
 
-const ALL_COURSES: Course[] = [
+export const ALL_COURSES: Course[] = [
   { id: 1, icon: '🎨', iconBg: 'rgba(139,92,246,0.2)', category: 'Design', title: 'UI/UX Design Fundamentals', description: 'Learn to craft beautiful, user-centred interfaces from wireframes to polished prototypes.', duration: '6h 30m', lessons: 24, url: 'https://www.youtube.com/watch?v=2QQQtiFwXjU&list=PLTZYG7bZ1u6oHnGp4Ib3n0y-CmFQdTW6r' },
   { id: 2, icon: '⚛️', iconBg: 'rgba(56,189,248,0.2)', category: 'Frontend', title: 'React & TypeScript Mastery', description: 'Build production-ready apps with React 18, TypeScript, and modern tooling.', duration: '9h 15m', lessons: 36, url: 'https://www.youtube.com/watch?v=TiSGujM22OI&list=PLC3y8-rFHvwi1AXijGTKM0BKtHzVC-LSK' },
   { id: 3, icon: '🗄️', iconBg: 'rgba(34,197,94,0.2)', category: 'Backend', title: 'Node.js & REST APIs', description: 'Design scalable server-side applications and RESTful APIs with Node, Express, and PostgreSQL.', duration: '8h 00m', lessons: 30, url: 'https://www.youtube.com/watch?v=0oXYLzuucwE&list=PL55RiY5tL51q4D-B63KBnygU6opNPFk_q' },
@@ -16,71 +24,3 @@ const ALL_COURSES: Course[] = [
   { id: 11, icon: '🛒', iconBg: 'rgba(251,191,36,0.2)', category: 'Fullstack', title: 'Build an E-Commerce App', description: 'A project-based course building a full-stack shop with Next.js, Prisma, and Stripe.', duration: '12h 20m', lessons: 44, url: 'https://www.youtube.com/watch?v=glMRU2ER1q8&list=PL7Oro2kvkIzLjKd5pXe6HBMJvExyNiame' },
   { id: 12, icon: '🎙️', iconBg: 'rgba(52,211,153,0.2)', category: 'Soft Skills', title: 'Tech Communication & Writing', description: 'Write clear documentation, give compelling tech talks, and lead effective code reviews.', duration: '3h 30m', lessons: 14, url: 'https://www.youtube.com/watch?v=vT5pcc30Ffw' },
 ]
-
-const CATEGORIES = ['All', ...Array.from(new Set(ALL_COURSES.map(c => c.category)))]
-
-export default function Courses() {
-  const [active, setActive] = useState('All')
-
-  const filtered = active === 'All'
-    ? ALL_COURSES
-    : ALL_COURSES.filter(c => c.category === active)
-
-  return (
-    <div className="flex min-h-screen bg-slate-100" style={{ fontFamily: "'Inter', sans-serif" }}>
-
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-auto">
-
-        {/* Page header */}
-        <div className="border-b border-slate-200 bg-white px-8 pt-12 pb-10 shadow-sm">
-          <span className="inline-block text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full mb-3.5">
-            All courses
-          </span>
-          <h1 className="text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold text-slate-900 mb-2">
-            Expand your skillset
-          </h1>
-          <p className="text-base text-slate-600">
-            {ALL_COURSES.length} courses across design, engineering, data, and more.
-          </p>
-        </div>
-
-        {/* Filter bar */}
-        <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 px-8 py-3 shadow-sm">
-          <div className="flex gap-2 flex-wrap">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActive(cat)}
-                className={`px-4 py-1.5 rounded-full text-[0.82rem] font-medium border cursor-pointer transition-all duration-150
-                  ${active === cat
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white border-transparent'
-                    : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Grid */}
-        <div className="px-8 pt-8 pb-20">
-          <p className="text-sm text-slate-600 mb-6">
-            Showing <strong className="text-slate-900">{filtered.length}</strong> course{filtered.length !== 1 ? 's' : ''}
-            {active !== 'All' ? ` in ${active}` : ''}
-          </p>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
-            {filtered.map(course => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        </div>
-
-      </div>
-    </div>
-  )
-}
