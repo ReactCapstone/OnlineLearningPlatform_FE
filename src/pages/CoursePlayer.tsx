@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate, NavLink } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { ALL_COURSES } from '../data/courses'
 import Sidebar from '../components/layout/Sidebar/sidebar'
 
