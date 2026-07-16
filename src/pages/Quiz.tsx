@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout';
 import quizQuestionsData from '../data/quizQuestions.json';
 
@@ -12,6 +13,8 @@ type QuizQuestion = {
 type AnswerState = Record<number, string>;
 
 const Quiz = () => {
+  const navigate = useNavigate();
+  const { topicId } = useParams<{ topicId?: string }>();
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerState>({});
@@ -71,6 +74,10 @@ const Quiz = () => {
     setSubmitted(false);
   };
 
+  const handleBackToAssessments = () => {
+    navigate('/assessments');
+  };
+
   if (!questions.length) {
     return (
       <DashboardLayout>
@@ -85,7 +92,19 @@ const Quiz = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div>
+          <div className="flex-1">
+            {topicId && (
+              <button
+                type="button"
+                onClick={handleBackToAssessments}
+                className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Assessments
+              </button>
+            )}
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">Assessment</p>
             <h1 className="text-2xl font-bold text-gray-900">Knowledge Quiz</h1>
             <p className="mt-1 text-sm text-gray-500">Answer 10 questions and review your results instantly.</p>
@@ -172,13 +191,24 @@ const Quiz = () => {
                     ? 'Nice job! You are doing well.'
                     : 'Keep practicing and try again to improve.'}
               </p>
-              <button
-                type="button"
-                onClick={handleTryAgain}
-                className="mt-6 rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-              >
-                Try Again
-              </button>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleTryAgain}
+                  className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                >
+                  Try Again
+                </button>
+                {topicId && (
+                  <button
+                    type="button"
+                    onClick={handleBackToAssessments}
+                    className="rounded-xl border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                  >
+                    Back to Assessments
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
