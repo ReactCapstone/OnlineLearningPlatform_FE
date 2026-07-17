@@ -24,7 +24,7 @@ export default function AppRoutes() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/register" element={<Register />} />
             <Route path="/assessments" element={<Assessments />} />
-            <Route path="/quiz/:topicId" element={<Quiz />} />
+            <Route path="/quiz/:courseId" element={<Quiz />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/wishlist" element={<Wishlist />} />
              <Route path="/course/:courseId" element={<CoursePlayer />} /> 
