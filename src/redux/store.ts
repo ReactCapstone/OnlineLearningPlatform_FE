@@ -4,6 +4,7 @@ import studentReducer from "./student/studentSlice";
 import dashboardReducer from "./dashboard/dashboardSlice";
 import wishlistReducer from "./student/wishlistSlice";
 import authReducer from './auth/authSlice';
+import assessmentReducer from './assessment/assessmentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     wishlist: wishlistReducer,
     dashboard: dashboardReducer,
     auth: authReducer,
+    assessment: assessmentReducer, // new
   }
 })
 
