@@ -122,7 +122,7 @@ export default function Register() {
         {/* Header */}
         <div className="mb-8">
           <Link to="/" className="inline-flex items-center justify-center w-9 h-9 bg-gradient-to-r from-indigo-600 to-purple-500 rounded-lg mb-6">
-            <span className="font-extrabold text-white text-base">L</span>
+            <span className="font-extrabold text-white text-base">NV</span>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-1">Create an account</h1>
           <p className="text-gray-500 text-sm">Start your learning journey with Learnify.</p>

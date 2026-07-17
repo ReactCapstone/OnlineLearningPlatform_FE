@@ -33,24 +33,28 @@ export default function Profile() {
     console.log('Form submitted:', form)
   }
 
+  const inputClass = 'px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all'
+
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-white px-6 py-12">
+    <div className="min-h-screen bg-white px-6 py-12" style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="max-w-[600px] mx-auto">
 
         {/* Header */}
         <div className="mb-10">
-          <Link to="/" className="inline-flex items-center justify-center w-9 h-9 bg-indigo rounded-lg mb-6">
-            <span className="font-display font-extrabold text-white text-base">L</span>
+          <Link to="/" className="inline-flex items-center justify-center w-9 h-9 bg-gradient-to-r from-indigo-600 to-purple-500 rounded-lg mb-6">
+            <span className="font-extrabold text-white text-base">NV</span>
           </Link>
-          <h1 className="font-display text-3xl font-bold text-gray-900 mb-1">Your Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">Your Profile</h1>
           <p className="text-gray-500 text-sm">Manage your personal information and expertise.</p>
         </div>
 
-        {/* Avatar placeholder */}
+        {/* Avatar */}
         <div className="flex items-center gap-4 mb-10 pb-10 border-b border-gray-100">
-          <div className="w-16 h-16 rounded-full bg-indigo/10 flex items-center justify-center text-2xl font-display font-bold text-indigo">
-            {form.firstName ? form.firstName[0].toUpperCase() : '?'}
-          </div>
+          <img
+            src="src/assets/images/default-user.png"
+            alt="Profile"
+            className="w-16 h-16 rounded-full object-cover border border-gray-200 shadow-sm"
+          />
           <div>
             <p className="font-medium text-gray-900">
               {form.firstName || form.lastName
@@ -74,10 +78,9 @@ export default function Profile() {
                 value={form.firstName}
                 onChange={handleChange}
                 placeholder="Jane"
-                className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
+                className={inputClass}
               />
             </label>
-
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-gray-700">Last Name</span>
               <input
@@ -86,7 +89,7 @@ export default function Profile() {
                 value={form.lastName}
                 onChange={handleChange}
                 placeholder="Doe"
-                className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
+                className={inputClass}
               />
             </label>
           </div>
@@ -100,7 +103,7 @@ export default function Profile() {
               value={form.email}
               onChange={handleChange}
               placeholder="jane@example.com"
-              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
+              className={inputClass}
             />
           </label>
 
@@ -115,7 +118,7 @@ export default function Profile() {
               placeholder="e.g. 3"
               min="0"
               max="50"
-              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all"
+              className={inputClass}
             />
           </label>
 
@@ -126,7 +129,7 @@ export default function Profile() {
               name="areaOfExpertise"
               value={form.areaOfExpertise}
               onChange={handleChange}
-              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/20 transition-all bg-white appearance-none cursor-pointer"
+              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white appearance-none cursor-pointer"
             >
               <option value="" disabled>Select your area</option>
               {EXPERTISE_OPTIONS.map(opt => (
@@ -142,7 +145,7 @@ export default function Profile() {
             </p>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-indigo hover:bg-indigo-light text-white text-sm font-semibold transition-colors duration-200 cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo-500/20"
             >
               Save changes
             </button>
