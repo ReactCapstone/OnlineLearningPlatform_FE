@@ -85,9 +85,6 @@ export default function CoursePlayer() {
               <span className="text-[0.72rem] font-semibold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
                 {course.category}
               </span>
-              <span className="text-[0.72rem] font-semibold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
-                ⏱ {course.duration}
-              </span>
               <span className="text-[0.72rem] font-semibold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
                 ✏️ {course.lessons} lessons
               </span>
