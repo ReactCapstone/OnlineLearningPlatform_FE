@@ -14,7 +14,7 @@ export const sidebarMenu = [
      path:"/"
     },
     {
-        title:"My Courses",
+        title:"Courses",
         icon: FiBookOpen,
         path:"/courses"
     },
