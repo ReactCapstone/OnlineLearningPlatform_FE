@@ -121,11 +121,19 @@ const Quiz = () => {
     if (submitAssessmentAttempt.fulfilled.match(action)) {
       const result = action.payload;
 
-      if (!result.isPassed) {
+      if (result.isPassed) {
+        setPopupPassed(true);
+        setPopupMessage(
+          `🎉 Congratulations! You passed the assessment with ${result.score}%.`
+        );
+      } else {
         setPopupPassed(false);
-        setPopupMessage("You did not pass. You can retake the assessment.");
-        setShowResultPopup(true);
+        setPopupMessage(
+          "You did not pass. You can retake the assessment."
+        );
       }
+
+      setShowResultPopup(true);
     }
   };
 
@@ -460,25 +468,44 @@ const Quiz = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95">
             <div className="flex justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                <svg
-                  className="h-8 w-8 text-red-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+              <div
+                className={`flex h-16 w-16 items-center justify-center rounded-full ${popupPassed ? 'bg-green-100' : 'bg-red-100'
+                  }`}
+              >
+                {popupPassed ? (
+                  <svg
+                    className="h-8 w-8 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-8 w-8 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                )}
               </div>
             </div>
 
             <h2 className="mt-5 text-center text-2xl font-bold text-gray-900">
-              Assessment Result
+              {popupPassed ? 'Congratulations!' : 'Assessment Result'}
             </h2>
 
             <p className="mt-3 text-center text-gray-600">
