@@ -105,7 +105,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
           </svg>
-          {course.lessons} lessons
+          {course.lessons} Rs.
         </div>
         <div className="flex items-center gap-1 text-xs font-medium text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           Start learning
