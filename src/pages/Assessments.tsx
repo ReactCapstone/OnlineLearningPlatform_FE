@@ -101,7 +101,7 @@ export default function Assessments() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {courses.map((course) => {
               const status = statuses[course.id];
-              const completed = status?.hasAttempted;
+              const completed = !!status?.latestResult;
 
               return (
                 <div
@@ -121,9 +121,9 @@ export default function Assessments() {
 
                   <div>
                     <h3 className="text-xl font-semibold text-slate-900">{course.title}</h3>
-                    {completed && status.result ? (
+                    {completed && status.latestResult ? (
                       <p className="mt-1 text-sm text-slate-500">
-                        Scored {status.result.score}% • {formatDate(status.result.submittedAt)}
+                        Scored {status.latestResult.score}% • {formatDate(status.latestResult.submittedAt)}
                       </p>
                     ) : (
                       <p className="mt-1 text-sm text-slate-500 line-clamp-2">{course.description}</p>

@@ -1,5 +1,3 @@
-// src/redux/assessment/assessmentTypes.ts
-
 import type { Assessment, StartAttemptData, SubmitResult, MyStatusData } from '../../types/assessment';
 
 export interface AssessmentState {
