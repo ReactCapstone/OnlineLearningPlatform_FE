@@ -10,7 +10,8 @@ import Register from '../pages/Register'
 import Quiz from '../pages/Quiz'
 import Assessments from '../pages/Assessments'
 import Wishlist from '../pages/Wishlist'
-import CoursePlayer from '../pages/CoursePlayer'
+ import CoursePlayer from '../pages/CoursePlayer'
+ //import CourseDetails from "../pages/CourseDetails";
 
 export default function AppRoutes() {
     return (
@@ -23,10 +24,11 @@ export default function AppRoutes() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/register" element={<Register />} />
             <Route path="/assessments" element={<Assessments />} />
-            <Route path="/quiz/:topicId" element={<Quiz />} />
+            <Route path="/quiz/:courseId" element={<Quiz />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/course/:courseId" element={<CoursePlayer />} />
+             <Route path="/course/:courseId" element={<CoursePlayer />} /> 
+             {/* <Route path="/course/:id" element={<CourseDetails />} />  */}
         </Routes>
     )
 }

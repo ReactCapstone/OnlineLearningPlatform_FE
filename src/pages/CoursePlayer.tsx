@@ -1,169 +1,598 @@
-import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { ALL_COURSES } from '../data/courses'
-import Sidebar from '../components/layout/Sidebar/sidebar'
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
+import Sidebar from "../components/layout/Sidebar/sidebar";
 
-function getEmbedUrl(url: string, index: number): string {
-  const videoIdMatch = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/)
-  const listIdMatch = url.match(/list=([^&]+)/)
-  const videoId = videoIdMatch ? videoIdMatch[1] : ''
-  const listId = listIdMatch ? listIdMatch[1] : ''
-  let embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&index=${index}`
-  if (listId) embedUrl += `&list=${listId}`
-  return embedUrl
+import courseService, {
+    CourseDto
+} from "../services/courseService";
+
+import sectionService, {
+    SectionDto
+} from "../services/sectionService";
+
+import lessonService, {
+    LessonDto
+} from "../services/lessonService";
+
+function getEmbedUrl(url: string): string {
+
+    if (!url) return "";
+
+    if (url.includes("/embed/"))
+        return url;
+
+    const shortUrl = url.match(/youtu\.be\/([^?&]+)/);
+
+    if (shortUrl)
+        return `https://www.youtube.com/embed/${shortUrl[1]}?autoplay=1`;
+
+    const watchUrl = url.match(/[?&]v=([^&]+)/);
+
+    if (watchUrl)
+        return `https://www.youtube.com/embed/${watchUrl[1]}?autoplay=1`;
+
+    return url;
 }
 
 export default function CoursePlayer() {
-  const { courseId } = useParams()
-  const navigate = useNavigate()
-  const course = ALL_COURSES.find(c => c.id === Number(courseId))
-  const [activeLesson, setActiveLesson] = useState(0)
 
-  if (!course) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Course not found</h1>
-          <button onClick={() => navigate('/courses')} className="text-indigo-600 hover:underline text-sm">
-            Back to courses
-          </button>
-        </div>
-      </div>
-    )
-  }
+    const { courseId } = useParams();
 
-  const lessons = Array.from({ length: course.lessons }, (_, i) => ({
-    index: i,
-    label: `Lesson ${i + 1}`,
-  }))
+    const navigate = useNavigate();
 
-  return (
-    <div className="flex min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    const [loading, setLoading] =
+        useState(true);
 
-      {/* ── Sidebar ── */}
-      <Sidebar />
+    const [error, setError] =
+        useState("");
 
-      {/* ── Main ── */}
-      <div className="flex-1 flex flex-col overflow-auto">
+    const [course, setCourse] =
+        useState<CourseDto | null>(null);
 
-        {/* Top bar */}
-        <div className="bg-white border-b border-gray-100 px-8 py-4 flex items-center gap-4 sticky top-0 z-10">
-          <button
-            onClick={() => navigate('/courses')}
-            className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors duration-150"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Back to Courses
-          </button>
-          <div className="h-4 w-px bg-gray-200" />
-          <span className="text-sm text-gray-400">{course.category}</span>
-        </div>
+    const [sections, setSections] =
+        useState<SectionDto[]>([]);
 
-        <div className="flex-1 px-8 py-8 max-w-[1100px] w-full mx-auto">
+    const [lessons, setLessons] =
+        useState<Record<number, LessonDto[]>>({});
 
-          {/* Video player */}
-          <div className="w-full rounded-2xl overflow-hidden shadow-lg bg-black aspect-video mb-6">
-            <iframe
-              key={activeLesson}
-              src={getEmbedUrl(course.url, activeLesson)}
-              title={`${course.title} — Lesson ${activeLesson + 1}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
-            />
-          </div>
+    const [selectedLesson, setSelectedLesson] =
+        useState<LessonDto | null>(null);
 
-          {/* Course info */}
-          <div className="flex flex-col gap-3 mb-8">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{ background: course.iconBg }}>
-                {course.icon}
-              </span>
-              <span className="text-[0.72rem] font-semibold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
-                {course.category}
-              </span>
-              <span className="text-[0.72rem] font-semibold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
-                ⏱ {course.duration}
-              </span>
-              <span className="text-[0.72rem] font-semibold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                ✏️ {course.lessons} lessons
-              </span>
+    const allLessons = useMemo(() => {
+
+        return sections.flatMap(section =>
+            lessons[section.id] ?? []
+        );
+
+    }, [sections, lessons]);
+
+    const currentIndex = selectedLesson
+        ? allLessons.findIndex(x => x.id === selectedLesson.id)
+        : -1;
+
+    const totalLessons = allLessons.length;
+
+    useEffect(() => {
+
+        loadCourse();
+
+    }, [courseId]);
+
+    async function loadCourse() {
+
+        if (!courseId)
+            return;
+
+        try {
+
+            setLoading(true);
+
+            const id = Number(courseId);
+
+            const courseData =
+                await courseService.getCourse(id);
+
+            setCourse(courseData);
+
+            const sectionData =
+                await sectionService.getSections(id);
+
+            setSections(sectionData);
+
+            const lessonMap: Record<number, LessonDto[]> = {};
+
+            for (const section of sectionData) {
+
+                const lessonData =
+                    await lessonService.getLessons(section.id);
+
+                lessonMap[section.id] = lessonData;
+
+            }
+
+            setLessons(lessonMap);
+
+            if (sectionData.length > 0) {
+
+                const firstLessons =
+                    lessonMap[sectionData[0].id];
+
+                if (firstLessons?.length > 0) {
+
+                    setSelectedLesson(firstLessons[0]);
+
+                }
+
+            }
+
+        }
+        catch (err) {
+
+            console.error(err);
+
+            setError("Unable to load course.");
+
+        }
+        finally {
+
+            setLoading(false);
+
+        }
+
+    }
+
+    function nextLesson() {
+
+        if (currentIndex >= allLessons.length - 1)
+            return;
+
+        setSelectedLesson(
+            allLessons[currentIndex + 1]
+        );
+
+    }
+
+    function previousLesson() {
+
+        if (currentIndex <= 0)
+            return;
+
+        setSelectedLesson(
+            allLessons[currentIndex - 1]
+        );
+
+    }
+
+    if (loading) {
+
+        return (
+
+            <div className="flex justify-center items-center min-h-screen">
+
+                Loading...
+
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 leading-snug">{course.title}</h1>
-            <p className="text-sm text-gray-500 leading-relaxed max-w-[680px]">{course.description}</p>
-          </div>
 
-          {/* ── Playlist ── */}
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+        );
 
-            {/* Playlist header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-gray-900">Course Playlist</h2>
-                <p className="text-xs text-gray-400 mt-0.5">{course.lessons} lessons · {course.duration}</p>
-              </div>
-              <span className="text-xs text-indigo-600 font-medium bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
-                Lesson {activeLesson + 1} of {course.lessons}
-              </span>
+    }
+
+    if (error) {
+
+        return (
+
+            <div className="flex justify-center items-center min-h-screen">
+
+                {error}
+
             </div>
 
-            {/* Lesson list */}
-            <div className="divide-y divide-gray-50 max-h-[420px] overflow-y-auto">
-              {lessons.map(({ index, label }) => {
-                const isActive = index === activeLesson
-                return (
-                  <button
-                    key={index}
-                    onClick={() => setActiveLesson(index)}
-                    className={`w-full flex items-center gap-4 px-6 py-3.5 text-left transition-all duration-150 cursor-pointer
-                      ${isActive
-                        ? 'bg-indigo-50 border-l-4 border-indigo-500'
-                        : 'hover:bg-gray-50 border-l-4 border-transparent'
-                      }`}
-                  >
-                    {/* Play indicator */}
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-150
-                      ${isActive
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-500 shadow-md shadow-indigo-200'
-                        : 'bg-gray-100'
-                      }`}
+        );
+
+    }
+
+    if (!course) {
+
+        return (
+
+            <div className="flex justify-center items-center min-h-screen">
+
+                Course not found
+
+            </div>
+
+        );
+
+    }    return (
+
+        <div
+            className="flex min-h-screen bg-gray-50"
+            style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+
+            {/* Sidebar */}
+
+            <Sidebar />
+
+            {/* Main */}
+
+            <div className="flex-1 flex flex-col overflow-auto">
+
+                {/* Top Bar */}
+
+                <div className="bg-white border-b border-gray-100 px-8 py-4 flex items-center gap-4 sticky top-0 z-10">
+
+                    <button
+
+                        onClick={() => navigate("/courses")}
+
+                        className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900"
+
                     >
-                      {isActive ? (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                          <polygon points="5 3 19 12 5 21 5 3"/>
+
+                        <svg
+
+                            width="16"
+
+                            height="16"
+
+                            viewBox="0 0 24 24"
+
+                            fill="none"
+
+                            stroke="currentColor"
+
+                            strokeWidth="2.5"
+
+                        >
+
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+
                         </svg>
-                      ) : (
-                        <span className="text-xs font-semibold text-gray-500">{index + 1}</span>
-                      )}
+
+                        Back to Courses
+
+                    </button>
+
+                    <div className="h-4 w-px bg-gray-200" />
+
+                    <span className="text-sm text-gray-500">
+
+                        {course.level}
+
+                    </span>
+
+                </div>
+
+                {/* Content */}
+
+                <div className="flex-1 px-8 py-8 max-w-[1100px] w-full mx-auto">
+
+                    {/* Video */}
+
+                    <div className="w-full rounded-2xl overflow-hidden shadow-lg bg-black aspect-video mb-6">
+
+                        {selectedLesson ? (
+
+                            <iframe
+
+                                key={selectedLesson.id}
+
+                                src={getEmbedUrl(selectedLesson.videoUrl)}
+
+                                title={selectedLesson.title}
+
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+
+                                allowFullScreen
+
+                                className="w-full h-full"
+
+                            />
+
+                        ) : (
+
+                            <div className="flex justify-center items-center h-full text-white">
+
+                                No Video Available
+
+                            </div>
+
+                        )}
+
                     </div>
 
-                    {/* Label */}
-                    <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                      <span className={`text-sm font-medium truncate ${isActive ? 'text-indigo-700' : 'text-gray-700'}`}>
-                        {label}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {course.category} · Part {index + 1}
-                      </span>
+                    {/* Course Information */}
+
+                    <div className="flex flex-col gap-3 mb-8">
+
+                        <div className="flex flex-wrap gap-2">
+
+                            <span className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold">
+
+                                {course.level}
+
+                            </span>
+
+                            <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+
+                                {course.language}
+
+                            </span>
+
+                            <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">
+
+                                {totalLessons} Lessons
+
+                            </span>
+
+                        </div>
+
+                        <h1 className="text-3xl font-bold text-gray-900">
+
+                            {course.title}
+
+                        </h1>
+
+                        <p className="text-gray-600 leading-relaxed">
+
+                            {course.description}
+
+                        </p>
+
+                    </div>
+                                        {/* Playlist */}
+
+                    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+
+                        {/* Playlist Header */}
+
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+
+                            <div>
+
+                                <h2 className="text-sm font-bold text-gray-900">
+
+                                    Course Playlist
+
+                                </h2>
+
+                                <p className="text-xs text-gray-400 mt-1">
+
+                                    {totalLessons} Lessons
+
+                                </p>
+
+                            </div>
+
+                            <span className="text-xs font-medium bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full">
+
+                                {selectedLesson
+                                    ? `${currentIndex + 1} / ${totalLessons}`
+                                    : "0 / 0"}
+
+                            </span>
+
+                        </div>
+
+                        {/* Sections */}
+
+                        <div className="max-h-[420px] overflow-y-auto">
+
+                            {sections.map((section) => (
+
+                                <div
+                                    key={section.id}
+                                    className="border-b border-gray-100"
+                                >
+
+                                    {/* Section */}
+
+                                    <div className="bg-gray-50 px-6 py-3">
+
+                                        <h3 className="font-semibold text-gray-800">
+
+                                            {section.title}
+
+                                        </h3>
+
+                                    </div>
+
+                                    {/* Lessons */}
+
+                                    {lessons[section.id]?.map((lesson) => {
+
+                                        const isActive =
+                                            selectedLesson?.id === lesson.id;
+
+                                        return (
+
+                                            <button
+
+                                                key={lesson.id}
+
+                                                onClick={() =>
+                                                    setSelectedLesson(lesson)
+                                                }
+
+                                                className={`
+
+                                                w-full
+
+                                                flex
+
+                                                items-center
+
+                                                gap-4
+
+                                                px-6
+
+                                                py-4
+
+                                                text-left
+
+                                                transition-all
+
+                                                border-l-4
+
+                                                ${isActive
+                                                        ? "bg-indigo-50 border-indigo-600"
+                                                        : "border-transparent hover:bg-gray-50"}
+
+                                            `}
+
+                                            >
+
+                                                <div
+
+                                                    className={`
+
+                                                    w-8
+
+                                                    h-8
+
+                                                    rounded-full
+
+                                                    flex
+
+                                                    items-center
+
+                                                    justify-center
+
+                                                    shrink-0
+
+                                                    ${isActive
+                                                            ? "bg-indigo-600 text-white"
+                                                            : "bg-gray-200 text-gray-700"}
+
+                                                `}
+
+                                                >
+
+                                                    {isActive ? (
+
+                                                        <svg
+                                                            width="12"
+                                                            height="12"
+                                                            viewBox="0 0 24 24"
+                                                            fill="white"
+                                                        >
+
+                                                            <polygon points="5 3 19 12 5 21" />
+
+                                                        </svg>
+
+                                                    ) : (
+
+                                                        lesson.orderIndex
+
+                                                    )}
+
+                                                </div>
+
+                                                <div className="flex-1">
+
+                                                    <div
+
+                                                        className={`font-medium ${
+                                                            isActive
+                                                                ? "text-indigo-700"
+                                                                : "text-gray-800"
+                                                        }`}
+
+                                                    >
+
+                                                        {lesson.title}
+
+                                                    </div>
+
+                                                    <div className="text-xs text-gray-400 mt-1">
+
+                                                        {Math.floor(
+                                                            lesson.durationSeconds /
+                                                                60
+                                                        )}{" "}
+                                                        min
+
+                                                        {lesson.isPreview && (
+                                                            <>
+                                                                {" • "}
+                                                                Preview
+                                                            </>
+                                                        )}
+
+                                                    </div>
+
+                                                </div>
+
+                                                {isActive && (
+
+                                                    <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
+
+                                                        Now Playing
+
+                                                    </span>
+
+                                                )}
+
+                                            </button>
+
+                                        );
+
+                                    })}
+
+                                </div>
+
+                            ))}
+
+                        </div>
+
                     </div>
 
-                    {/* Active badge */}
-                    {isActive && (
-                      <span className="text-[0.65rem] font-semibold text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full shrink-0">
-                        Now Playing
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
+                                        {/* Previous / Next Buttons */}
+
+                    <div className="flex justify-between mt-6">
+
+                        <button
+
+                            onClick={previousLesson}
+
+                            disabled={currentIndex <= 0}
+
+                            className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition"
+
+                        >
+
+                            ← Previous Lesson
+
+                        </button>
+
+                        <button
+
+                            onClick={nextLesson}
+
+                            disabled={
+                                currentIndex === totalLessons - 1 ||
+                                totalLessons === 0
+                            }
+
+                            className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+
+                        >
+
+                            Next Lesson →
+
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
-          </div>
 
         </div>
-      </div>
-    </div>
-  )
+
+    );
+
 }

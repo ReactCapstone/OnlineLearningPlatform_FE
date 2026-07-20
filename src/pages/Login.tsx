@@ -68,15 +68,14 @@ export default function Login() {
             />
           </label>
 
-          {/* Log in button */}
           <Link
-            to="/"
-            onClick={handleLogin}
-            aria-disabled={loading}
-            className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo to-purple-500 hover:from-indigo-light hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo/20 text-center"
-            role="button"
+              to="/"
+              onClick={handleLogin}
+              aria-disabled={loading}
+              className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo-500/20 text-center block"
+              role="button"
           >
-            {loading ? 'Logging in...' : 'Log in'}
+              {loading ? 'Logging in...' : 'Log in'}
           </Link>
         </div>
 
