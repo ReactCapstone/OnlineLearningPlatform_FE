@@ -108,7 +108,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           {course.lessons} Rs.
         </div>
         <div className="flex items-center gap-1 text-xs font-medium text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          Start learning
+          Enroll
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
