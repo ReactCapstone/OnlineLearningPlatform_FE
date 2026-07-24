@@ -23,7 +23,6 @@ import courseService from '../services/courseService'
 export default function Courses() {
  
     const [courses, setCourses] = useState<Course[]>([]);
-    const [loading, setLoading] = useState(true);
     const [active, setActive] = useState("All");
 
     useEffect(() => {
@@ -59,11 +58,6 @@ export default function Courses() {
         catch (err) {
 
             console.log(err);
-
-        }
-        finally {
-
-            setLoading(false);
 
         }
 
