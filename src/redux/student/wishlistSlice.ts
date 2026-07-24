@@ -2,16 +2,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface WishlistCourse {
   id: number;
-  icon: string;
-  iconBg: string;
-  category: string;
   title: string;
   description: string;
-  duration: string;
-  lessons: number;
+  thumbnail: string;
+  category: string;
+  level: string;
+  price: number;
+  totalLessons: number;
+  totalSections: number;
 }
 
-interface WishlistState {
+export interface WishlistState {
   items: WishlistCourse[];
 }
 

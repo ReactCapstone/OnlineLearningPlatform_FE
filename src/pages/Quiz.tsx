@@ -19,8 +19,6 @@ import {
   selectAssessmentSubmitting,
   selectAssessmentError,
 } from '../redux/assessment/assessmentSelectors';
-// import { fetchCourses } from '../redux/courses/courseSlice';
-// import { selectAllCourses } from '../redux/courses/courseSelectors';
 
 type AnswerState = Record<number, number>;
 
@@ -37,55 +35,59 @@ const Quiz = () => {
   const statusLoading = useAppSelector(selectAssessmentStatusLoading);
   const submitting = useAppSelector(selectAssessmentSubmitting);
   const error = useAppSelector(selectAssessmentError);
-  // const allCourses = useAppSelector(selectAllCourses);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerState>({});
   const [attemptStartFailed, setAttemptStartFailed] = useState(false);
+  // Explicitly entered "taking the quiz" mode — either first attempt or a retake
+  const [isTaking, setIsTaking] = useState(false);
+  const [showResultPopup, setShowResultPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupPassed, setPopupPassed] = useState(false);
 
-  // Step 1: check status first — this decides everything downstream
-  useEffect(() => {
+  // Step 1: check status first
+  const loadStatus = () => {
     if (!courseId) return;
     dispatch(resetAssessment());
     setAttemptStartFailed(false);
+    setIsTaking(false);
+    setAnswers({});
+    setCurrentIndex(0);
     dispatch(fetchMyStatus(Number(courseId)));
+  };
 
-    // if (allCourses.length === 0) {
-    //   dispatch(fetchCourses());
-    // }
+  useEffect(() => {
+    loadStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId, dispatch]);
 
-  // Step 2: only fetch the assessment (to take it) if the user hasn't already attempted it
+  // Step 2: if there's an active (in-progress) attempt, resume it — fetch the assessment
+  // and treat it as "taking the quiz" immediately, without a fresh start call.
   useEffect(() => {
-    if (myStatus && !myStatus.hasAttempted && courseId) {
+    if (myStatus?.hasActiveAttempt && courseId && !assessment) {
       dispatch(fetchAssessmentByCourse(Number(courseId)));
+      setIsTaking(true);
     }
-  }, [myStatus, courseId, dispatch]);
+  }, [myStatus, courseId, assessment, dispatch]);
 
-  // Step 3: start the attempt only once we have a fresh assessment and confirmed no prior attempt
+  // Step 3: start the attempt once we have the assessment and are in "taking" mode
+  // with no attempt started yet.
   useEffect(() => {
-    if (myStatus && !myStatus.hasAttempted && assessment && !attempt) {
+    if (isTaking && assessment && !attempt && !myStatus?.hasActiveAttempt) {
       dispatch(startAssessmentAttempt(assessment.id)).then((action) => {
-        // If the start call was rejected, flag it so we can show a real error
-        // instead of silently letting the user fill out a quiz with no attempt to submit.
         if (startAssessmentAttempt.rejected.match(action)) {
           setAttemptStartFailed(true);
         }
       });
     }
-  }, [myStatus, assessment, attempt, dispatch]);
+  }, [isTaking, assessment, attempt, myStatus, dispatch]);
 
   const questions = assessment?.questions ?? [];
   const currentQuestion = questions[currentIndex];
   const progressPercent = questions.length ? ((currentIndex + 1) / questions.length) * 100 : 0;
 
-  // The result to display: either freshly submitted, or the past completed one from my-status
-  const displayResult = result ?? myStatus?.result ?? null;
-
-  // const course = allCourses.find((c) => c.id === Number(courseId));
-  const course = { title: undefined };
-  const breadcrumbName = course?.title ?? assessment?.title ?? courseId;
+  // Result to display: freshly submitted this session, or the latest one from status
+  const displayResult = result ?? myStatus?.latestResult ?? null;
   const allQuestionsAnswered = questions.every((q) => answers[q.id] !== undefined);
   const currentQuestionAnswered = currentQuestion ? answers[currentQuestion.id] !== undefined : false;
 
@@ -114,7 +116,36 @@ const Quiz = () => {
         selectedOptionId,
       })),
     };
-    await dispatch(submitAssessmentAttempt(payload));
+    const action = await dispatch(submitAssessmentAttempt(payload));
+
+    if (submitAssessmentAttempt.fulfilled.match(action)) {
+      const result = action.payload;
+
+      if (result.isPassed) {
+        setPopupPassed(true);
+        setPopupMessage(
+          `🎉 Congratulations! You passed the assessment with ${result.score}%.`
+        );
+      } else {
+        setPopupPassed(false);
+        setPopupMessage(
+          "You did not pass. You can retake the assessment."
+        );
+      }
+
+      setShowResultPopup(true);
+    }
+  };
+
+  // Start taking the quiz fresh — used for both the first attempt and retakes
+  const handleStartOrRetake = () => {
+    if (!courseId) return;
+    dispatch(resetAssessment());
+    setAnswers({});
+    setCurrentIndex(0);
+    setAttemptStartFailed(false);
+    setIsTaking(true);
+    dispatch(fetchAssessmentByCourse(Number(courseId)));
   };
 
   const handleBackToCourses = () => {
@@ -125,7 +156,7 @@ const Quiz = () => {
     new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
   // ── Loading states ──────────────────────────────────────────────────
-  if (statusLoading || (myStatus?.hasAttempted === false && loading && !assessment)) {
+  if (statusLoading) {
     return (
       <DashboardLayout>
         <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
@@ -154,9 +185,15 @@ const Quiz = () => {
     );
   }
 
-  // Already attempted, but we don't have the questions loaded (we intentionally never fetch
-  // them in this case) — show the completed summary using myStatus.result only.
-  if (myStatus?.hasAttempted && displayResult) {
+  // ── Results screen: no active attempt, but we have a result to show ──
+  // Covers both "just submitted this session" and "previously completed, revisited"
+  if (myStatus && !myStatus.hasActiveAttempt && !isTaking && displayResult) {
+    const canRetake = myStatus.canRetake;
+    const attemptsRemainingText =
+      myStatus.maxAttempts > 0
+        ? `${myStatus.attemptsRemaining ?? 0} attempt${myStatus.attemptsRemaining === 1 ? '' : 's'} remaining`
+        : null;
+
     return (
       <DashboardLayout>
         <div className="space-y-6">
@@ -171,11 +208,8 @@ const Quiz = () => {
               </svg>
               Back to Assessments
             </button>
-            <p className="text-xs text-gray-400">
-              Home &gt; Quiz &gt; <span className="font-medium text-gray-600">{breadcrumbName}</span>
-            </p>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600 mt-2">Assessment</p>
-            <h1 className="text-2xl font-bold text-gray-900">{breadcrumbName}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{assessment?.title ?? 'Quiz'}</h1>
           </div>
 
           <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
@@ -191,7 +225,21 @@ const Quiz = () => {
             <p className="mt-3 text-sm text-gray-400">
               Submitted on {formatDate(displayResult.submittedAt)}
             </p>
-            <div className="mt-6">
+            <p className="mt-1 text-xs text-gray-400">
+              Attempt {myStatus.attemptCount}
+              {attemptsRemainingText ? ` • ${attemptsRemainingText}` : ''}
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              {canRetake && (
+                <button
+                  type="button"
+                  onClick={handleStartOrRetake}
+                  className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                >
+                  Retake Quiz
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleBackToCourses}
@@ -201,81 +249,72 @@ const Quiz = () => {
               </button>
             </div>
           </div>
+
+          {/* Per-question review only available right after submitting in this session */}
+          {result && assessment && (
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900">Your answers</h3>
+              <div className="mt-5 space-y-4">
+                {questions.map((question, index) => {
+                  const selectedOptionId = answers[question.id];
+                  const selectedOption = question.options.find((o) => o.id === selectedOptionId);
+                  return (
+                    <div key={question.id} className="rounded-xl border border-gray-200 p-4">
+                      <p className="font-semibold text-gray-900">{index + 1}. {question.questionText}</p>
+                      <p className="mt-2 text-sm text-gray-600">
+                        Your answer: <span className="font-medium">{selectedOption?.optionText ?? 'Not answered'}</span>
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </DashboardLayout>
     );
   }
 
-  // Just submitted in this session — we DO have questions/answers, show full review
-  if (displayResult && assessment) {
+  // ── No prior attempt at all — show a start screen ─────────────────────
+  if (myStatus && !myStatus.hasActiveAttempt && !myStatus.latestResult && !isTaking) {
     return (
       <DashboardLayout>
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">Assessment</p>
+          <h2 className="mt-2 text-2xl font-bold text-gray-900">Ready to begin?</h2>
+          <p className="mt-2 text-gray-600">You haven't attempted this assessment yet.</p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={handleStartOrRetake}
+              className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+            >
+              Start Quiz
+            </button>
             <button
               type="button"
               onClick={handleBackToCourses}
-              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition"
+              className="rounded-xl border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
               Back to Assessments
             </button>
-            <p className="text-xs text-gray-400">
-              Home &gt; Quiz &gt; <span className="font-medium text-gray-600">{breadcrumbName}</span>
-            </p>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600 mt-2">Assessment</p>
-            <h1 className="text-2xl font-bold text-gray-900">{assessment.title}</h1>
-          </div>
-
-          <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600">Results</p>
-            <h2 className="mt-2 text-3xl font-bold text-gray-900">
-              You scored {displayResult.correctAnswers} / {displayResult.totalQuestions}
-            </h2>
-            <p className="mt-2 text-gray-600">
-              {displayResult.isPassed
-                ? `Great job! You passed with ${displayResult.score}% (needed ${displayResult.passPercentage}%).`
-                : `You scored ${displayResult.score}%, just short of the ${displayResult.passPercentage}% needed to pass.`}
-            </p>
-            <p className="mt-3 text-sm text-gray-400">
-              Submitted on {formatDate(displayResult.submittedAt)}
-            </p>
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={handleBackToCourses}
-                className="rounded-xl border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-              >
-                Back to Assessments
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900">Your answers</h3>
-            <div className="mt-5 space-y-4">
-              {questions.map((question, index) => {
-                const selectedOptionId = answers[question.id];
-                const selectedOption = question.options.find((o) => o.id === selectedOptionId);
-                return (
-                  <div key={question.id} className="rounded-xl border border-gray-200 p-4">
-                    <p className="font-semibold text-gray-900">{index + 1}. {question.questionText}</p>
-                    <p className="mt-2 text-sm text-gray-600">
-                      Your answer: <span className="font-medium">{selectedOption?.optionText ?? 'Not answered'}</span>
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </div>
       </DashboardLayout>
     );
   }
 
-  if (!assessment || !currentQuestion) {
+  if (isTaking && (loading || statusLoading) && !assessment) {
+    return (
+      <DashboardLayout>
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-lg font-semibold text-gray-700">Loading assessment...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isTaking && !assessment) {
     return (
       <DashboardLayout>
         <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
@@ -285,10 +324,7 @@ const Quiz = () => {
     );
   }
 
-  // Assessment loaded, but the "start attempt" call failed (e.g. "You already have an
-  // active attempt") — block quiz-taking entirely instead of letting the user fill out
-  // questions that can never be submitted.
-  if (!attempt && attemptStartFailed) {
+  if (isTaking && !attempt && attemptStartFailed) {
     return (
       <DashboardLayout>
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center text-amber-700 shadow-sm">
@@ -308,8 +344,7 @@ const Quiz = () => {
     );
   }
 
-  // Attempt hasn't started yet and hasn't failed either — still in flight
-  if (!attempt) {
+  if (isTaking && !attempt) {
     return (
       <DashboardLayout>
         <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
@@ -319,7 +354,17 @@ const Quiz = () => {
     );
   }
 
-  // ── Taking the quiz (fresh attempt) ─────────────────────────────────
+  if (!isTaking || !assessment || !currentQuestion) {
+    return (
+      <DashboardLayout>
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-lg font-semibold text-gray-700">Loading...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // ── Taking the quiz ─────────────────────────────────────────────────
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -335,9 +380,6 @@ const Quiz = () => {
               </svg>
               Back to Assessments
             </button>
-            <p className="text-xs text-gray-400">
-              Home &gt; Quiz &gt; <span className="font-medium text-gray-600">{breadcrumbName}</span>
-            </p>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-600 mt-2">Assessment</p>
             <h1 className="text-2xl font-bold text-gray-900">{assessment.title}</h1>
             <p className="mt-1 text-sm text-gray-500">
@@ -422,6 +464,68 @@ const Quiz = () => {
           )}
         </div>
       </div>
+      {showResultPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex justify-center">
+              <div
+                className={`flex h-16 w-16 items-center justify-center rounded-full ${popupPassed ? 'bg-green-100' : 'bg-red-100'
+                  }`}
+              >
+                {popupPassed ? (
+                  <svg
+                    className="h-8 w-8 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-8 w-8 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                )}
+              </div>
+            </div>
+
+            <h2 className="mt-5 text-center text-2xl font-bold text-gray-900">
+              {popupPassed ? 'Congratulations!' : 'Assessment Result'}
+            </h2>
+
+            <p className="mt-3 text-center text-gray-600">
+              {popupMessage}
+            </p>
+
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => {
+                  setShowResultPopup(false)
+                  handleBackToCourses();
+                }}
+                className="rounded-xl bg-indigo-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };
