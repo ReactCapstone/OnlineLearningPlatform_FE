@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import CourseCard, { type Course } from '../components/CourseCard'
 import Sidebar from '../components/layout/Sidebar/sidebar'
 import courseService from '../services/courseService'
@@ -23,8 +23,9 @@ import courseService from '../services/courseService'
 export default function Courses() {
  
     const [courses, setCourses] = useState<Course[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
     const [active, setActive] = useState("All");
+  const [query, setQuery] = useState('');
 
     useEffect(() => {
     const fetchData = async () => {
@@ -74,9 +75,14 @@ export default function Courses() {
         ...Array.from(new Set(courses.map(x => x.category)))
     ];
 
-  const filtered = active === 'All'
-    ? courses
-    : courses.filter(c => c.category === active)
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    let res = active === 'All' ? courses : courses.filter(c => c.category === active);
+    if (q) {
+      res = res.filter(c => (c.title || '').toLowerCase().includes(q) || (c.description || '').toLowerCase().includes(q));
+    }
+    return res;
+  }, [courses, active, query]);
 
   return (
     <div className="flex min-h-screen bg-slate-100" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -100,22 +106,34 @@ export default function Courses() {
           </p>
         </div>
 
-        {/* Filter bar */}
+        {/* Filter bar with search */}
         <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 px-8 py-3 shadow-sm">
-          <div className="flex gap-2 flex-wrap">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActive(cat)}
-                className={`px-4 py-1.5 rounded-full text-[0.82rem] font-medium border cursor-pointer transition-all duration-150
-                  ${active === cat
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white border-transparent'
-                    : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex gap-2 flex-wrap">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActive(cat)}
+                  className={`px-4 py-1.5 rounded-full text-[0.82rem] font-medium border cursor-pointer transition-all duration-150
+                    ${active === cat
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-500 text-white border-transparent'
+                      : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50'
+                    }`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <div className="ml-auto w-full max-w-xs">
+              <label className="relative block">
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search courses..."
+                  className="w-full rounded-full border border-slate-200 bg-white px-4 py-2 text-sm placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                />
+              </label>
+            </div>
           </div>
         </div>
 
