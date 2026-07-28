@@ -1,6 +1,4 @@
-import SearchBar from "./SearchBar";
 import ProfileMenu from "./ProfileMenu";
-import NotificationMenu from "./NotificationMenu";
 
 const Header = () => {
   return (

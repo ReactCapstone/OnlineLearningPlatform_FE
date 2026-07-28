@@ -16,7 +16,7 @@ const Breadcrumb = () => {
   return (
     <div className="px-8 py-4 text-sm text-blue-800">
       <span>Home</span>
-      {segments.map((segment, index) => (
+      {segments.map((segment) => (
         <span key={segment} className="inline-flex items-center">
           <span className="mx-2">{'>'}</span>
           <span>{titleCase(segment)}</span>

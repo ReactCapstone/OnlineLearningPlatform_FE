@@ -39,14 +39,11 @@ const Wishlist = () => {
     try {
       await wishlistService.removeFromWishlist(courseId);
       dispatch(removeFromWishlist(courseId));
-      loadWishlist(searchTerm.trim() || undefined);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to remove wishlist item', err);
     }
   };
-
-  const filteredWishlist = wishlistItems;
 
   return (
     <DashboardLayout>
@@ -57,7 +54,9 @@ const Wishlist = () => {
               <p className="text-xs uppercase tracking-[0.4em] text-indigo-600">Wishlist</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-700">Saved {wishlistItems.length}</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-700">
+                Saved {wishlistItems.length}
+              </p>
             </div>
           </div>
           <div className="mt-6">
@@ -75,15 +74,22 @@ const Wishlist = () => {
           )}
         </div>
 
-        {filteredWishlist.length === 0 ? (
+        {wishlistItems.length === 0 && !loading ? (
           <div className="rounded-3xl border border-gray-200 bg-white p-16 shadow-sm text-center">
-            <p className="text-2xl font-semibold text-gray-900">No saved courses match your search</p>
-            <p className="mt-3 text-sm text-gray-500">Try a different keyword or clear the search field.</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {searchTerm ? 'No saved courses match your search' : 'Your wishlist is empty'}
+            </p>
+            <p className="mt-3 text-sm text-gray-500">
+              {searchTerm ? 'Try a different keyword or clear the search field.' : 'Browse courses and save the ones you\'re interested in.'}
+            </p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-3">
-            {filteredWishlist.map((course) => (
-              <div key={course.id} className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5">
+            {wishlistItems.map((course) => (
+              <div
+                key={course.id}
+                className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5"
+              >
                 <button
                   type="button"
                   onClick={() => handleRemove(course.id)}
@@ -96,26 +102,32 @@ const Wishlist = () => {
                     />
                   </svg>
                 </button>
-                <div className="bg-indigo-50 p-6 text-center">
-                  <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-3xl bg-white shadow-sm text-5xl text-indigo-700">
-                    {course.icon}
-                  </div>
-                </div>
+
+                <img
+                  src={course.thumbnail}
+                  alt={course.title}
+                  className="h-40 w-full object-cover"
+                />
+
                 <div className="flex flex-1 flex-col gap-5 p-6">
                   <div>
                     <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-indigo-700">
                       {course.category}
                     </span>
                     <h2 className="mt-4 text-2xl font-semibold text-gray-900">{course.title}</h2>
-                    <p className="mt-3 text-sm leading-6 text-gray-600">{course.description}</p>
+                    <p className="mt-3 text-sm leading-6 text-gray-600 line-clamp-2">{course.description}</p>
                   </div>
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap gap-3">
-                      <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600">{course.lessons} lessons</span>
-                      <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600">{course.category}</span>
+                      <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600">
+                        {course.totalLessons} lessons
+                      </span>
+                      <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600">
+                        {course.level}
+                      </span>
                     </div>
                     <div className="rounded-3xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700">
-                      {course.duration}
+                      ${(course.price ?? 0).toFixed(2)}
                     </div>
                   </div>
                 </div>

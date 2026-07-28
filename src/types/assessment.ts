@@ -48,15 +48,20 @@ export interface SubmitResult {
     submittedAt: string;
 }
 
+// Replaces the old MyStatusData shape entirely
+export interface MyStatusData {
+    hasActiveAttempt: boolean;
+    activeAttemptId: number | null;
+    latestResult: SubmitResult | null;
+    attemptCount: number;
+    maxAttempts: number;          // 0 = unlimited
+    attemptsRemaining: number | null; // null when unlimited
+    canRetake: boolean;
+}
+
 export interface ApiResponse<T> {
     success: boolean;
     message: string;
     data: T;
     statusCode: number;
-}
-
-export interface MyStatusData {
-    hasAttempted: boolean;
-    attemptId: number | null;
-    result: SubmitResult | null;
 }
