@@ -55,11 +55,23 @@ export default function CourseList() {
           />
         </div>
 
+        {/* Results count */}
+        <p className="text-sm text-gray-500">
+          Showing <strong className="text-gray-900">{filtered.length}</strong> course{filtered.length !== 1 ? 's' : ''}
+          {search ? ` for "${search}"` : ''}
+        </p>
+
         {/* Course list */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           {filtered.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-gray-400 text-sm">No courses match your search.</p>
+              <button
+                onClick={() => setSearch('')}
+                className="mt-3 text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+              >
+                Clear search
+              </button>
             </div>
           ) : (
             <div className="divide-y divide-gray-50">
@@ -83,8 +95,10 @@ export default function CourseList() {
                       <span className="text-[0.68rem] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
                         {course.category}
                       </span>
-                      <span className="text-xs text-gray-400">₹{course.price.toLocaleString('en-IN')}</span>
                       <span className="text-xs text-gray-400">✏️ {course.lessons} lessons</span>
+                      <span className="text-xs font-semibold text-green-600">
+                        ₹{course.price.toLocaleString('en-IN')}
+                      </span>
                     </div>
                   </div>
 
@@ -92,7 +106,7 @@ export default function CourseList() {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => navigate(`/admin/assessments/view/${course.id}`)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-600 bg-indigo-50 border border-indigo-100 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-indigo-600 bg-indigo-50 border border-indigo-100 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 cursor-pointer"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -101,7 +115,7 @@ export default function CourseList() {
                     </button>
                     <button
                       onClick={() => setConfirmId(course.id)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 bg-red-50 border border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-150"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 bg-red-50 border border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-150 cursor-pointer"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
@@ -121,13 +135,11 @@ export default function CourseList() {
       {confirmId !== null && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-6">
           <div className="bg-white rounded-2xl p-8 max-w-[380px] w-full shadow-2xl">
-
             <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
               </svg>
             </div>
-
             <h3 className="text-lg font-bold text-gray-900 text-center mb-2">Remove Course</h3>
             <p className="text-sm text-gray-500 text-center mb-6">
               Are you sure you want to remove{' '}
@@ -136,17 +148,16 @@ export default function CourseList() {
               </span>
               ? This action cannot be undone.
             </p>
-
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmId(null)}
-                className="flex-1 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-600 transition-colors cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-600 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleRemove(confirmId)}
-                className="flex-1 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors cursor-pointer"
               >
                 Yes, remove
               </button>
