@@ -13,7 +13,14 @@ import Wishlist from '../pages/Wishlist'
 import CoursePlayer from '../pages/CoursePlayer'
 import Progress from '../pages/Progress'
  import Certificate from '../pages/Certificate'
-//import CourseDetails from "../pages/CourseDetails";
+//import CourseDetails from "../pages/CourseDetails"
+
+//admin dashboard Routes
+import AdminHome from '../pages/AdminDashboard/AdminHome'
+import AdminLogin from '../pages/AdminDashboard/AdminLogin'
+import CourseList from '../pages/AdminDashboard/courses/CourseList'
+import AddCourse from '../pages/AdminDashboard/courses/AddCourse'
+import AddAssessment from '../pages/AdminDashboard/assessments/AddAssessment'
 
 export default function AppRoutes() {
     return (
@@ -33,6 +40,14 @@ export default function AppRoutes() {
             <Route path="/course/:courseId" element={<CoursePlayer />} /> 
            <Route path="/certificates" element={<Certificate />} />
             {/* <Route path="/course/:id" element={<CourseDetails />} />  */}
+
+            {/* Admin dashboard routes */}
+            <Route path="/admin" element={<AdminHome />} />
+            <Route path="/admin/dashboard" element={<AdminHome />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/courses" element={<CourseList />} />
+            <Route path="/admin/courses/add" element={<AddCourse />} />
+            <Route path="/admin/assessments/add" element={<AddAssessment />} />
         </Routes>
     )
 }
