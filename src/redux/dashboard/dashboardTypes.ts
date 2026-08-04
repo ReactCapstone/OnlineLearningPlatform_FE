@@ -1,12 +1,21 @@
-export interface DashboardState{
-    studentName: string;
-    dailyGoal: string;
-    statistics: DashboardStatistics;
-}
+// src/redux/dashboard/dashboardTypes.ts
 
-export interface DashboardStatistics{
-    enrolledCourses: number;
-    inProgressCourses: number;
-    completedCourses: number;
-    certificatesEarned: number;
+import type {
+    DashboardStats,
+    ContinueLearningItem,
+    RecommendedCourseItem,
+    RecentActivityItem,
+    WeeklyGoal,
+    UpcomingClassItem,
+} from '../../types/dashboard';
+
+export interface DashboardState {
+    stats: DashboardStats | null;
+    continueLearning: ContinueLearningItem[];
+    recommended: RecommendedCourseItem[];
+    recentActivity: RecentActivityItem[];
+    weeklyGoal: WeeklyGoal | null;
+    upcomingClasses: UpcomingClassItem[];
+    loading: boolean;
+    error: string | null;
 }
