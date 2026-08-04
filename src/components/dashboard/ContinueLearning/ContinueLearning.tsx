@@ -1,10 +1,12 @@
+import { Link } from 'react-router-dom'
 import ContinueCourseCard from './ContinueCourseCard'
 import { useAppSelector } from '../../../redux/hooks'
-import { selectCourses } from '../../../redux/student/studentSelectors'
-import { Link } from 'react-router-dom'
+import { selectContinueLearning } from '../../../redux/dashboard/dashboardSelectors'
 
 const ContinueLearning = () => {
-  const courses = useAppSelector(selectCourses)
+  const courses = useAppSelector(selectContinueLearning)
+
+  if (courses.length === 0) return null
 
   return (
     <>
@@ -19,7 +21,7 @@ const ContinueLearning = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <ContinueCourseCard key={course.id} course={course} />
+          <ContinueCourseCard key={course.courseId} course={course} />
         ))}
       </div>
     </>

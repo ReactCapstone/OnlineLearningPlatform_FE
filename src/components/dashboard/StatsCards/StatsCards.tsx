@@ -1,10 +1,12 @@
-import {FiBookOpen, FiClock, FiCheckCircle, FiAward} from "react-icons/fi";
+import { FiBookOpen, FiClock, FiCheckCircle, FiAward } from "react-icons/fi";
 import { useAppSelector } from "../../../redux/hooks";
-import {selectStatistics} from "../../../redux/dashboard/dashboardSelectors";
+import { selectDashboardStats } from "../../../redux/dashboard/dashboardSelectors";
 import StatCard from "./StatCard";
 
 const StatsCards = () => {
-  const stats = useAppSelector(selectStatistics);
+  const stats = useAppSelector(selectDashboardStats);
+
+  if (!stats) return null;
 
   return (
     <div className="grid grid-cols-4 gap-6">
@@ -17,7 +19,7 @@ const StatsCards = () => {
       <StatCard
         title="In Progress"
         value={stats.inProgressCourses}
-        icon={<FiClock size={26}/>}
+        icon={<FiClock size={26} />}
         color="bg-yellow-500"
       />
       <StatCard
