@@ -16,8 +16,11 @@ export default function Login() {
   const handleLogin = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const result = await dispatch(loginUser({ email, password }));
+
     if (loginUser.fulfilled.match(result)) {
-      navigate('/');
+      const role = result.payload?.role?.toString().toUpperCase();
+      const isAdmin = role === 'ADMIN' || role === 'ADMINISTRATOR' || role === 'ROLE_ADMIN';
+      navigate(isAdmin ? '/admin/dashboard' : '/');
     }
   };
 
