@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loginUser } from '../../redux/auth/authSlice'
+import { useAppDispatch } from '../../redux/hooks'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -7,6 +9,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -17,13 +20,21 @@ export default function AdminLogin() {
 
     setLoading(true)
     try {
-      // TODO: replace with real admin auth API call
-      // const response = await adminAuthService.login({ email, password })
-      // if (response.role !== 'ADMIN') throw new Error('Unauthorized')
+      const result = await dispatch(loginUser({ email, password }))
+      if (loginUser.fulfilled.match(result)) {
+        const role = result.payload?.role?.toString().toUpperCase()
+        const isAdmin = role === 'ADMIN' || role === 'ADMINISTRATOR' || role === 'ROLE_ADMIN'
 
-      // Mock — remove once backend is ready
-      await new Promise(resolve => setTimeout(resolve, 800))
-      navigate('/admin/dashboard')
+        if (!isAdmin) {
+          setError('Unauthorized access. Only admin accounts are allowed here.')
+          setLoading(false)
+          return
+        }
+
+        navigate('/admin/dashboard')
+        return
+      }
+      setError('Invalid credentials or unauthorized access.')
     } catch (err) {
       setError('Invalid credentials or unauthorized access.')
     } finally {
