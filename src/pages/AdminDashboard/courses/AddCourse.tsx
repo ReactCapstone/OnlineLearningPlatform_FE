@@ -157,7 +157,7 @@ export default function AddCourse() {
         price: Number(form.price),
         level: form.level,
         language: 'English', // TODO: add a real language field if needed
-        isPublished: true,
+        isPublished: false,
         numberOfLessons: Number(form.lessons)
       })
       setShowSuccess(true)
@@ -286,7 +286,6 @@ export default function AddCourse() {
                   value={form.lessons}
                   onChange={handleChange}
                   placeholder="e.g. 24"
-                  min="1"
                   className={inputClass(errors.lessons)}
                 />
                 {errors.lessons && <span className="text-xs text-red-500">{errors.lessons}</span>}
@@ -362,25 +361,6 @@ export default function AddCourse() {
             </div>
 
             {errors.icon && <span className="text-xs text-red-500">{errors.icon}</span>}
-
-            {form.icon && (
-              <div className="flex items-center gap-3 mt-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                {form.icon.startsWith('data:') ? (
-                  <img src={form.icon} alt="selected" className="w-10 h-10 object-cover rounded" />
-                ) : (
-                  <span className="text-2xl">{form.icon}</span>
-                )}
-                <div>
-                  <p className="text-xs text-gray-500">Selected icon preview</p>
-                  <p className="text-sm font-medium text-gray-900">{form.title || 'Course title'}</p>
-                  {form.price && (
-                    <p className="text-xs text-green-600 font-semibold mt-0.5">
-                      ₹{Number(form.price).toLocaleString('en-IN')}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="flex items-center justify-between pt-2">
@@ -426,9 +406,9 @@ export default function AddCourse() {
                 <path d="M20 6L9 17l-5-5" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Course Published!</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Course Saved!</h3>
             <p className="text-sm text-gray-500 mb-1">
-              <span className="font-medium text-gray-700">{form.title}</span> has been successfully added to the platform.
+              <span className="font-medium text-gray-700">{form.title}</span> has been saved as a draft.
             </p>
             <p className="text-sm text-green-600 font-semibold mb-6">
               ₹{Number(form.price).toLocaleString('en-IN')}
