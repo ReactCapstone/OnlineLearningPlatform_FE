@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loginUser } from '../../redux/auth/authSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -7,6 +9,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,9 +24,12 @@ export default function AdminLogin() {
       // const response = await adminAuthService.login({ email, password })
       // if (response.role !== 'ADMIN') throw new Error('Unauthorized')
 
-      // Mock — remove once backend is ready
-      await new Promise(resolve => setTimeout(resolve, 800))
-      navigate('/admin/dashboard')
+      const result = await dispatch(loginUser({ email, password }));
+      if (loginUser.fulfilled.match(result)) {
+        // navigate('/');
+        navigate('/admin/dashboard')
+      }
+
     } catch (err) {
       setError('Invalid credentials or unauthorized access.')
     } finally {
@@ -57,7 +63,7 @@ export default function AdminLogin() {
           {error && (
             <div className="mb-5 px-4 py-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2.5">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" className="shrink-0">
-                <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
               </svg>
               <p className="text-sm text-red-600">{error}</p>
             </div>
@@ -97,8 +103,8 @@ export default function AdminLogin() {
               {loading ? (
                 <>
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Signing in...
                 </>
@@ -119,7 +125,7 @@ export default function AdminLogin() {
         {/* Security note */}
         <p className="text-center text-xs text-gray-400 mt-4 flex items-center justify-center gap-1.5">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
           </svg>
           Secure admin access — unauthorized attempts are logged
         </p>
