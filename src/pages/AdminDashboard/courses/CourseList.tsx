@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import courseService from '../../../services/courseService'
 import type { CourseDto } from '../../../types/course'
+import Modal from '../../../components/common/Modal/Modal'
 
 export default function CourseList() {
   const navigate = useNavigate()
@@ -163,7 +164,7 @@ export default function CourseList() {
       </div>
 
       {confirmId !== null && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-6">
+        <Modal onClose={() => setConfirmId(null)} ariaLabel="Remove course confirmation">
           <div className="bg-white rounded-2xl p-8 max-w-[380px] w-full shadow-2xl">
             <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -198,7 +199,7 @@ export default function CourseList() {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
     </AdminLayout>
