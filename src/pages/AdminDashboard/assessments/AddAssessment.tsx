@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
+import Modal from '../../../components/common/Modal/Modal'
 import { ALL_COURSES } from '../../../data/courses'
 
 interface Question {
@@ -420,7 +421,7 @@ export default function AddAssessment() {
 
       {/* Success modal */}
       {showSuccess && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-6">
+        <Modal onClose={() => setShowSuccess(false)} ariaLabel="Assessment published">
           <div className="bg-white rounded-2xl p-8 max-w-[400px] w-full text-center shadow-2xl">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -450,7 +451,7 @@ export default function AddAssessment() {
               </Link>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
     </AdminLayout>

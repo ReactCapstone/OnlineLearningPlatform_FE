@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import Modal from '../components/common/Modal/Modal'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { registerUser } from '../redux/auth/authSlice'
 import { selectAuthLoading, selectAuthError } from '../redux/auth/authSelectors'
@@ -261,7 +262,7 @@ export default function Register() {
 
       {/* Success popup */}
       {showSuccess && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-6">
+        <Modal onClose={() => setShowSuccess(false)} ariaLabel="Account created">
           <div className="bg-white rounded-2xl p-8 max-w-[380px] w-full text-center shadow-2xl">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -286,7 +287,7 @@ export default function Register() {
               Stay on page
             </button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   )

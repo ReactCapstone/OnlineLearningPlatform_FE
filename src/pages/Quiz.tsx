@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout';
+import Modal from '../components/common/Modal/Modal';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
   fetchMyStatus,
@@ -465,7 +466,7 @@ const Quiz = () => {
         </div>
       </div>
       {showResultPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <Modal onClose={() => setShowResultPopup(false)} ariaLabel="Assessment result">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95">
             <div className="flex justify-center">
               <div
@@ -524,7 +525,7 @@ const Quiz = () => {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </DashboardLayout>
   );
