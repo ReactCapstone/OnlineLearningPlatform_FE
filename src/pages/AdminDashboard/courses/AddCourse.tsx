@@ -146,8 +146,8 @@ export default function AddCourse() {
     }
     setLoading(true)
     try {
-      // choose thumbnail: uploaded icon (data URL) takes precedence, otherwise url, otherwise placeholder
-      const thumbnail = form.icon && form.icon.startsWith('data:') ? form.icon : (form.url || 'https://images.unsplash.com/photo-1516116216624-placeholder')
+      // Persist the selected emoji, uploaded image, or optional URL as the course thumbnail
+      const thumbnail = form.icon || form.url || '📘'
 
       await courseService.createCourse({
         title: form.title,
@@ -158,7 +158,7 @@ export default function AddCourse() {
         price: Number(form.price),
         level: form.level,
         language: 'English', // TODO: add a real language field if needed
-        isPublished: false,
+        isPublished: true,
         numberOfLessons: Number(form.lessons)
       })
       setShowSuccess(true)
@@ -407,9 +407,9 @@ export default function AddCourse() {
                 <path d="M20 6L9 17l-5-5" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Course Saved!</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Course Published!</h3>
             <p className="text-sm text-gray-500 mb-1">
-              <span className="font-medium text-gray-700">{form.title}</span> has been saved as a draft.
+              <span className="font-medium text-gray-700">{form.title}</span> is now published and visible to learners.
             </p>
             <p className="text-sm text-green-600 font-semibold mb-6">
               ₹{Number(form.price).toLocaleString('en-IN')}

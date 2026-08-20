@@ -45,7 +45,7 @@ export default function Courses() {
           category: c.level,
           duration: c.language,
           lessons: c.price,
-          icon: "📘",
+          icon: c.thumbnail || "📘",
           iconBg: "rgba(59,130,246,.15)",
           url: `/course/${c.id}`
         }));

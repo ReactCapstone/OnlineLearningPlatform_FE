@@ -5,6 +5,7 @@ import courseService from '../services/courseService';
 import type { CourseDto } from '../services/courseService';
 import assessmentService from '../services/assessmentService';
 import type { MyStatusData } from '../types/assessment';
+import CourseThumbnail from '../components/common/CourseThumbnail';
 
 export default function Assessments() {
   const navigate = useNavigate();
@@ -108,6 +109,13 @@ export default function Assessments() {
                   key={course.id}
                   className="flex flex-col gap-4 rounded-[20px] border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
                 >
+                  <CourseThumbnail
+                    src={course.thumbnail}
+                    alt={course.title}
+                    className="h-16 w-16 rounded-2xl bg-indigo-50 overflow-hidden"
+                    imageClassName="h-full w-full object-cover"
+                  />
+
                   <div className="flex items-center justify-between">
                     <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-indigo-700">
                       {course.level}

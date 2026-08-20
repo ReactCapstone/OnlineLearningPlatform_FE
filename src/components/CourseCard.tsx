@@ -5,6 +5,7 @@ import { selectWishlistItems } from '../redux/student/wishlistSelectors'
 import { useState } from 'react'
 import wishlistService from '../services/wishlistService'
 import enrollmentService from '../services/enrollmentService'
+import CourseThumbnail from './common/CourseThumbnail'
 
 interface Course {
   id: number
@@ -95,12 +96,12 @@ export default function CourseCard({ course }: CourseCardProps) {
       )}
 
       {/* Icon */}
-      <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl shrink-0"
-        style={{ background: course.iconBg }}
-      >
-        {course.icon}
-      </div>
+      <CourseThumbnail
+        src={course.icon}
+        alt={course.title}
+        className="w-11 h-11 rounded-xl shrink-0 overflow-hidden"
+        imageClassName="h-full w-full object-cover"
+      />
 
       {/* Tags */}
       <div className="flex items-center gap-2 flex-wrap">
