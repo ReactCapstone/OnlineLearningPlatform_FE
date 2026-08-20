@@ -11,6 +11,7 @@ export interface RegisterDto {
     confirmPassword: string;
     yearsOfExperience: number | null;
     areaOfExpertise: string | null;
+    expertise: string[];
 }
 
 export interface AuthResponseData {
@@ -22,6 +23,7 @@ export interface AuthResponseData {
     role: string;
     yearsOfExperience?: number;
     areaOfExpertise?: string;
+    expertise?: string[];
     expiresAt: string;
 }
 
@@ -40,6 +42,7 @@ export interface AuthUser {
     token: string;
     yearsOfExperience?: number;
     areaOfExpertise?: string;
+    expertise?: string[];
     expiresAt: string;
 }
 

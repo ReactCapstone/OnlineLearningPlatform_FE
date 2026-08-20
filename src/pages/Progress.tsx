@@ -17,6 +17,7 @@ const milestones = [
 
 export default function Progress() {
   const [courses, setCourses] = useState<UserCourseProgressDto[]>([]);
+  const [overallCompletion, setOverallCompletion] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,8 +26,9 @@ export default function Progress() {
       try {
         setLoading(true);
         setError(null);
-        const data = await progressService.getUserCourseProgress(1);
-        setCourses(data);
+        const data = await progressService.getMyProgress();
+        setCourses(data.courses);
+        setOverallCompletion(data.overallCompletionPercentage);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load progress');
       } finally {
@@ -55,7 +57,7 @@ export default function Progress() {
             </div>
             <div className="rounded-2xl bg-white/15 px-5 py-4 backdrop-blur-sm">
               <p className="text-sm text-indigo-100">Overall completion</p>
-              <p className="mt-1 text-4xl font-bold">74%</p>
+              <p className="mt-1 text-4xl font-bold">{overallCompletion}%</p>
             </div>
           </div>
         </section>

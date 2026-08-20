@@ -35,6 +35,7 @@ export default function Register() {
     confirmPassword: '',
     yearsOfExperience: '',
     areaOfExpertise: '',
+    expertise: [] as string[],
   })
 
   const initialFormState = {
@@ -45,6 +46,7 @@ export default function Register() {
     confirmPassword: '',
     yearsOfExperience: '',
     areaOfExpertise: '',
+    expertise: [] as string[],
   }
 
   const [errors, setErrors] = useState<FormErrors>({})
@@ -58,6 +60,15 @@ export default function Register() {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
     setErrors(prev => ({ ...prev, [name]: undefined }))
+  }
+
+  const toggleExpertise = (expertise: string) => {
+    setForm(prev => ({
+      ...prev,
+      expertise: prev.expertise.includes(expertise)
+        ? prev.expertise.filter(item => item !== expertise)
+        : [...prev.expertise, expertise],
+    }))
   }
 
   const validate = (): FormErrors => {
@@ -96,7 +107,8 @@ export default function Register() {
       password: form.password,
       confirmPassword: form.confirmPassword,
       yearsOfExperience: form.yearsOfExperience === '' ? null : Number(form.yearsOfExperience),
-      areaOfExpertise: form.areaOfExpertise === '' ? null : form.areaOfExpertise,
+      areaOfExpertise: form.expertise[0] ?? null,
+      expertise: form.expertise,
     }))
     if (registerUser.fulfilled.match(result)) {
       setShowSuccess(true)
@@ -225,20 +237,17 @@ export default function Register() {
           </label>
 
           {/* Area of Expertise */}
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <span className="text-sm font-medium text-gray-700">Area of Expertise</span>
-            <select
-              name="areaOfExpertise"
-              value={form.areaOfExpertise}
-              onChange={handleChange}
-              className="px-4 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all bg-white cursor-pointer"
-            >
-              <option value="" disabled>Select your area</option>
+            <div className="flex flex-wrap gap-2 rounded-lg border border-gray-200 p-3">
               {EXPERTISE_OPTIONS.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
+                <label key={opt} className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs transition ${form.expertise.includes(opt) ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600 hover:border-indigo-300'}`}>
+                  <input type="checkbox" checked={form.expertise.includes(opt)} onChange={() => toggleExpertise(opt)} className="sr-only" />
+                  {opt}
+                </label>
               ))}
-            </select>
-          </label>
+            </div>
+          </div>
 
           {/* Submit */}
           <button

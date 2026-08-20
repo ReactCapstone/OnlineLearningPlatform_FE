@@ -5,6 +5,7 @@ import {
     FiHeart,
     FiFileText,
     FiBarChart2,
+    FiTarget,
 } from "react-icons/fi";
 
 export const sidebarMenu = [  
@@ -22,6 +23,11 @@ export const sidebarMenu = [
         title:"My Progress",
         icon: FiBarChart2,     
         path:"/progress"
+    },
+    {
+        title:"My Goals",
+        icon: FiTarget,
+        path:"/goals"
     },
     {
         title:"Assessments",

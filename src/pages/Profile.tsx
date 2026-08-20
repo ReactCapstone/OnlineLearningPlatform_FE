@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Mail, Briefcase, Clock, ChevronDown } from 'lucide-react'
+import { User, Mail, Briefcase, Clock } from 'lucide-react'
 import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout'
 
 const EXPERTISE_OPTIONS = [
@@ -22,10 +22,20 @@ export default function Profile() {
     email: '',
     yearsOfExperience: '',
     areaOfExpertise: '',
+    expertise: [] as string[],
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  const toggleExpertise = (expertise: string) => {
+    setForm(prev => ({
+      ...prev,
+      expertise: prev.expertise.includes(expertise)
+        ? prev.expertise.filter(item => item !== expertise)
+        : [...prev.expertise, expertise],
+    }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,7 +119,7 @@ export default function Profile() {
           </div>
 
           {/* Email */}
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-indigo-600" />
               Email Address
@@ -122,10 +132,10 @@ export default function Profile() {
               placeholder="jane@example.com"
               className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
-          </label>
+          </div>
 
           {/* Years of Experience */}
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-indigo-600" />
               Years of Experience
@@ -140,29 +150,23 @@ export default function Profile() {
               max="50"
               className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
             />
-          </label>
+          </div>
 
           {/* Area of Expertise */}
-          <label className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5 text-indigo-600" />
               Area of Expertise
             </span>
-            <div className="relative">
-              <select
-                name="areaOfExpertise"
-                value={form.areaOfExpertise}
-                onChange={handleChange}
-                className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition cursor-pointer focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-              >
-                <option value="" disabled>Select your area</option>
-                {EXPERTISE_OPTIONS.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              {EXPERTISE_OPTIONS.map(opt => (
+                <label key={opt} className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs transition ${form.expertise.includes(opt) ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:border-indigo-300'}`}>
+                  <input type="checkbox" checked={form.expertise.includes(opt)} onChange={() => toggleExpertise(opt)} className="sr-only" />
+                  {opt}
+                </label>
+              ))}
             </div>
-          </label>
+          </div>
 
           {/* Actions */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-2">
