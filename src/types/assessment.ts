@@ -65,3 +65,23 @@ export interface ApiResponse<T> {
     data: T;
     statusCode: number;
 }
+
+export interface Option {
+  optionText: string;
+  isCorrect: boolean;
+}
+
+export interface Question {
+  questionText: string;
+  orderIndex: number;
+  options: Option[];
+}
+
+export interface QuizPayload {
+  courseId: number;
+  title: string;
+  timeLimitMinutes: number;
+  passPercentage: number;
+  maxAttempts: number;
+  questions: Question[];
+}

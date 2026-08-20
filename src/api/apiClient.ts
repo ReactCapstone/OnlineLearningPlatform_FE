@@ -19,7 +19,6 @@ async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Pro
             ...headers,
         },
     };
-
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
     // Only clear the session if this request WAS using our stored token
@@ -30,9 +29,13 @@ async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Pro
         localStorage.removeItem('user');
     }
 
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
 
-    if (!data.success) {
+    if (!response.ok) {
+        throw new Error(data?.message || `Request failed with status ${response.status}.`);
+    }
+
+    if (!data?.success) {
         throw new Error(data.message || 'Something went wrong.');
     }
 

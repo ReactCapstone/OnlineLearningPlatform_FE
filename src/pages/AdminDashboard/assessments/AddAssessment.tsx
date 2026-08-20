@@ -1,8 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import Modal from '../../../components/common/Modal/Modal'
-import { ALL_COURSES } from '../../../data/courses'
+// import { ALL_COURSES } from '../../../data/courses'
+import assessmentService from '../../../services/assessmentService'
+import courseService from '../../../services/courseService'
+import type { CourseDto } from '../../../types/course'
+
+// Previous implementation used the local mock course list:
+// import { ALL_COURSES } from '../../../data/courses'
 
 interface Question {
   id: number
@@ -46,6 +52,24 @@ export default function AddAssessment() {
   const [questionErrors, setQuestionErrors] = useState<Record<number, QuestionErrors>>({})
   const [loading, setLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [courses, setCourses] = useState<CourseDto[]>([])
+  const [coursesLoading, setCoursesLoading] = useState(true)
+
+  // New implementation loads courses from the backend so submitted IDs are valid.
+  useEffect(() => {
+    const loadCourses = async () => {
+      try {
+        setCourses(await courseService.getCourses())
+      } catch (err) {
+        setApiError(err instanceof Error ? err.message : 'Failed to load courses.')
+      } finally {
+        setCoursesLoading(false)
+      }
+    }
+
+    void loadCourses()
+  }, [])
 
   // ── Form handlers ──────────────────────────────────────────────────────────
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -117,14 +141,28 @@ export default function AddAssessment() {
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setApiError('')
     if (!validate()) return
     setLoading(true)
     try {
-      // TODO: replace with real backend API call
-      // await assessmentService.addAssessment({ ...form, questions })
-      await new Promise(resolve => setTimeout(resolve, 800))
-      setShowSuccess(true)
+      const response = await assessmentService.createAssesment({
+        courseId: Number(form.courseId),
+        title: form.title.trim(),
+        timeLimitMinutes: 30,
+        passPercentage: 70,
+        maxAttempts: 1,
+        questions: questions.map((question, index) => ({
+          questionText: question.question.trim(),
+          orderIndex: index,
+          options: question.options.map(option => ({
+            optionText: option.trim(),
+            isCorrect: option === question.correctAnswer,
+          })),
+        })),
+      })
+      if (response) setShowSuccess(true)
     } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Failed to publish assessment.')
       console.error('Failed to add assessment', err)
     } finally {
       setLoading(false)
@@ -137,6 +175,7 @@ export default function AddAssessment() {
     setFormErrors({})
     setQuestionErrors({})
     setShowSuccess(false)
+    setApiError('')
   }
 
   const inputClass = (error?: string) =>
@@ -146,7 +185,9 @@ export default function AddAssessment() {
       : 'border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
     }`
 
-  const selectedCourse = ALL_COURSES.find(c => c.id === Number(form.courseId))
+  // Previous implementation searched the local mock list:
+  // const selectedCourse = ALL_COURSES.find(c => c.id === Number(form.courseId))
+  const selectedCourse = courses.find(c => c.id === Number(form.courseId))
 
   return (
     <AdminLayout>
@@ -156,6 +197,11 @@ export default function AddAssessment() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900">Add Assessment</h2>
           <p className="text-sm text-gray-500 mt-1">Create a quiz for a course with multiple choice questions.</p>
+          {apiError && (
+            <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {apiError}
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -173,22 +219,23 @@ export default function AddAssessment() {
                 name="courseId"
                 value={form.courseId}
                 onChange={handleFormChange}
+                disabled={coursesLoading}
                 className={`${inputClass(formErrors.courseId)} bg-white cursor-pointer`}
               >
-                <option value="" disabled>Select a course</option>
-                {ALL_COURSES.map(course => (
+                <option value="" disabled>{coursesLoading ? 'Loading courses...' : 'Select a course'}</option>
+                {/* Previous implementation rendered ALL_COURSES here. */}
+                {courses.map(course => (
                   <option key={course.id} value={course.id}>
-                    {course.icon} {course.title}
+                    {course.title}
                   </option>
                 ))}
               </select>
               {formErrors.courseId && <span className="text-xs text-red-500">{formErrors.courseId}</span>}
               {selectedCourse && (
                 <div className="flex items-center gap-2 mt-1 p-2.5 bg-indigo-50 rounded-lg border border-indigo-100">
-                  <span className="text-lg">{selectedCourse.icon}</span>
                   <div>
                     <p className="text-xs font-semibold text-indigo-700">{selectedCourse.title}</p>
-                    <p className="text-[0.68rem] text-indigo-500">{selectedCourse.category} · {selectedCourse.lessons} lessons · ₹{selectedCourse.price.toLocaleString('en-IN')}</p>
+                    <p className="text-[0.68rem] text-indigo-500">{selectedCourse.level} · ₹{selectedCourse.price.toLocaleString('en-IN')}</p>
                   </div>
                 </div>
               )}
@@ -274,7 +321,7 @@ export default function AddAssessment() {
                       className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 font-medium transition-colors cursor-pointer"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                        <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
                       </svg>
                       Remove
                     </button>
@@ -347,7 +394,7 @@ export default function AddAssessment() {
                 {q.correctAnswer && (
                   <div className="flex items-center gap-2 p-2.5 bg-green-50 rounded-lg border border-green-100">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5">
-                      <path d="M20 6L9 17l-5-5"/>
+                      <path d="M20 6L9 17l-5-5" />
                     </svg>
                     <span className="text-xs font-medium text-green-700">Correct: {q.correctAnswer}</span>
                   </div>
@@ -362,7 +409,7 @@ export default function AddAssessment() {
               className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-medium text-gray-500 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-150 cursor-pointer flex items-center justify-center gap-2"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               Add another question
             </button>
@@ -400,15 +447,15 @@ export default function AddAssessment() {
               {loading ? (
                 <>
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
                   Publishing...
                 </>
               ) : (
                 <>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                   Publish Assessment
                 </>
@@ -425,7 +472,7 @@ export default function AddAssessment() {
           <div className="bg-white rounded-2xl p-8 max-w-[400px] w-full text-center shadow-2xl">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 6L9 17l-5-5"/>
+                <path d="M20 6L9 17l-5-5" />
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Assessment Published!</h3>
