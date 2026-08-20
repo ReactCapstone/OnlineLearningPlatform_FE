@@ -8,6 +8,7 @@ import type {
     SubmitRequest,
     SubmitResult,
     MyStatusData,
+    QuizPayload,
 } from '../types/assessment';
 
 class AssessmentService {
@@ -50,6 +51,16 @@ class AssessmentService {
         );
         return response.data;
     }
+
+    async createAssesment(payload: QuizPayload): Promise<SubmitResult> {
+        const response = await apiClient<ApiResponse<SubmitResult>>(
+            `/Assessment`,
+            { method: 'POST', body: JSON.stringify(payload) }
+        );
+        return response.data;
+
+    }
+
 }
 
 export default new AssessmentService();
