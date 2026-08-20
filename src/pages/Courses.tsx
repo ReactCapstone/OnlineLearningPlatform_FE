@@ -36,17 +36,19 @@ export default function Courses() {
     try {
       const result = await courseService.getCourses();
 
-      const mapped: Course[] = result.map(c => ({
-        id: c.id,
-        title: c.title,
-        description: c.description,
-        category: c.level,
-        duration: c.language,
-        lessons: c.price,
-        icon: "📘",
-        iconBg: "rgba(59,130,246,.15)",
-        url: `/course/${c.id}`
-      }));
+      const mapped: Course[] = result
+        .filter(c => c.isPublished)
+        .map(c => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          category: c.level,
+          duration: c.language,
+          lessons: c.price,
+          icon: "📘",
+          iconBg: "rgba(59,130,246,.15)",
+          url: `/course/${c.id}`
+        }));
 
       setCourses(mapped);
     }
@@ -131,11 +133,17 @@ export default function Courses() {
             Showing <strong className="text-slate-900">{filtered.length}</strong> course{filtered.length !== 1 ? 's' : ''}
             {active !== 'All' ? ` in ${active}` : ''}
           </p>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
-            {filtered.map(course => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
+          {filtered.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
+              No published courses are available yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
+              {filtered.map(course => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
