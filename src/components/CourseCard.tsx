@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
-import { addToWishlist, removeFromWishlist } from '../redux/student/wishlistSlice'
+import { addToWishlist, removeFromWishlist, type WishlistCourse } from '../redux/student/wishlistSlice'
 import { selectWishlistItems } from '../redux/student/wishlistSelectors'
 import { useState } from 'react'
 import wishlistService from '../services/wishlistService'
@@ -38,7 +38,20 @@ export default function CourseCard({ course }: CourseCardProps) {
         dispatch(removeFromWishlist(course.id))
       } else {
         await wishlistService.addToWishlist(course.id)
-        dispatch(addToWishlist(course))
+
+        const wishlistPayload: WishlistCourse = {
+          id: course.id,
+          title: course.title,
+          description: course.description,
+          thumbnail: '',
+          category: course.category,
+          level: 'Beginner',
+          price: 0,
+          totalLessons: course.lessons,
+          totalSections: 0,
+        }
+
+        dispatch(addToWishlist(wishlistPayload))
       }
     } catch (err) {
       console.error('Wishlist API error', err)

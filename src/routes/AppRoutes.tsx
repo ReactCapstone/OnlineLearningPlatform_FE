@@ -47,6 +47,7 @@ export default function AppRoutes() {
             <Route path="/admin/dashboard" element={<AdminHome />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/courses" element={<CourseList />} />
+            <Route path="/admin/courses/list" element={<CourseList />} />
             <Route path="/admin/courses/add" element={<AddCourse />} />
             <Route path="/admin/assessments/add" element={<AddAssessment />} />
             <Route path="/admin/categories" element={<Categories />} />
