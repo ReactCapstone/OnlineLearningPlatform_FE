@@ -174,12 +174,13 @@ export default function AdminHome() {
               <Link
                 key={label}
                 to={to}
-                className={`flex flex-col gap-3 p-5 rounded-2xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${bgColor} ${textColor} ${borderColor} ${hoverBg} ${hoverText} ${hoverBorder} group`}
+                onClick={(e) => e.stopPropagation()}
+                className={`group relative z-10 block flex-col gap-3 p-5 rounded-2xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${bgColor} ${textColor} ${borderColor} ${hoverBg} ${hoverText} ${hoverBorder}`}
               >
                 <div className="w-10 h-10 rounded-xl bg-white/50 flex items-center justify-center">
                   {icon}
                 </div>
-                <div>
+                <div className="mt-3">
                   <p className="text-sm font-semibold">{label}</p>
                   <p className="text-xs opacity-70 mt-0.5">{description}</p>
                 </div>
