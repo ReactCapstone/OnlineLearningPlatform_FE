@@ -9,6 +9,7 @@ export interface CourseDto {
     level: string;
     language: string;
     isPublished: boolean;
+    numberOfLessons: number;
 }
 
 export interface CreateCourseDto {
@@ -21,6 +22,7 @@ export interface CreateCourseDto {
     level: string;
     language: string;
     isPublished: boolean;
+    numberOfLessons: number;
 }
 
 export interface ApiResponse<T> {

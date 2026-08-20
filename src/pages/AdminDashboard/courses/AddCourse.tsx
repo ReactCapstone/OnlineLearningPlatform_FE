@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import Modal from '../../../components/common/Modal/Modal'
 import { Link } from 'react-router-dom'
@@ -29,19 +29,21 @@ const CATEGORY_ID_MAP: Record<string, number> = {
 
 const LEVEL_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
 
-const ICON_OPTIONS = [
-  { emoji: '🎨', label: 'Design' },
-  { emoji: '⚛️', label: 'React' },
-  { emoji: '🗄️', label: 'Database' },
-  { emoji: '🤖', label: 'AI' },
-  { emoji: '☁️', label: 'Cloud' },
-  { emoji: '🔐', label: 'Security' },
-  { emoji: '📊', label: 'Data' },
-  { emoji: '📱', label: 'Mobile' },
-  { emoji: '🧩', label: 'Algorithms' },
-  { emoji: '🛒', label: 'Ecommerce' },
-  { emoji: '🎙️', label: 'Communication' },
-  { emoji: '🌐', label: 'Web' },
+type IconOption = { id: string; label: string; type: 'emoji' | 'image'; value: string }
+
+const ICON_OPTIONS_INITIAL: IconOption[] = [
+  { id: 'design', label: 'Design', type: 'emoji', value: '🎨' },
+  { id: 'react', label: 'React', type: 'emoji', value: '⚛️' },
+  { id: 'database', label: 'Database', type: 'emoji', value: '🗄️' },
+  { id: 'ai', label: 'AI', type: 'emoji', value: '🤖' },
+  { id: 'cloud', label: 'Cloud', type: 'emoji', value: '☁️' },
+  { id: 'security', label: 'Security', type: 'emoji', value: '🔐' },
+  { id: 'data', label: 'Data', type: 'emoji', value: '📊' },
+  { id: 'mobile', label: 'Mobile', type: 'emoji', value: '📱' },
+  { id: 'algorithms', label: 'Algorithms', type: 'emoji', value: '🧩' },
+  { id: 'ecommerce', label: 'Ecommerce', type: 'emoji', value: '🛒' },
+  { id: 'communication', label: 'Communication', type: 'emoji', value: '🎙️' },
+  { id: 'web', label: 'Web', type: 'emoji', value: '🌐' },
 ]
 
 interface FormErrors {
@@ -70,15 +72,54 @@ export default function AddCourse() {
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState('')
 
+  const [icons, setIcons] = useState<IconOption[]>(ICON_OPTIONS_INITIAL)
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
     setErrors(prev => ({ ...prev, [name]: undefined }))
   }
 
-  const handleIconSelect = (emoji: string) => {
-    setForm(prev => ({ ...prev, icon: emoji }))
+  const handleIconSelect = (option: IconOption) => {
+    // set either emoji or image data URL as the icon value
+    setForm(prev => ({ ...prev, icon: option.value }))
     setErrors(prev => ({ ...prev, icon: undefined }))
+  }
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const readFileAsDataUrl = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    // Accept only images
+    const allowed = ['image/png', 'image/jpeg', 'image/svg+xml']
+    if (!allowed.includes(f.type)) {
+      setApiError('Only PNG, JPG and SVG images are allowed for icons.')
+      return
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(f)
+      const id = `uploaded-${Date.now()}`
+      const newIcon: IconOption = { id, label: f.name, type: 'image', value: dataUrl }
+      setIcons(prev => [newIcon, ...prev])
+      // select uploaded icon
+      setForm(prev => ({ ...prev, icon: dataUrl }))
+      setErrors(prev => ({ ...prev, icon: undefined }))
+    } catch (err) {
+      setApiError('Failed to read uploaded file.')
+      console.error(err)
+    }
   }
 
   const validate = (): FormErrors => {
@@ -105,16 +146,20 @@ export default function AddCourse() {
     }
     setLoading(true)
     try {
+      // choose thumbnail: uploaded icon (data URL) takes precedence, otherwise url, otherwise placeholder
+      const thumbnail = form.icon && form.icon.startsWith('data:') ? form.icon : (form.url || 'https://images.unsplash.com/photo-1516116216624-placeholder')
+
       await courseService.createCourse({
         title: form.title,
         description: form.description,
-        thumbnail: form.url || 'https://images.unsplash.com/photo-1516116216624-placeholder',
+        thumbnail,
         categoryId: CATEGORY_ID_MAP[form.category],
         instructorId: 1, // TODO: replace with real logged-in instructor/admin id
         price: Number(form.price),
         level: form.level,
         language: 'English', // TODO: add a real language field if needed
-        isPublished: true,
+        isPublished: false,
+        numberOfLessons: Number(form.lessons)
       })
       setShowSuccess(true)
     } catch (err: any) {
@@ -242,7 +287,6 @@ export default function AddCourse() {
                   value={form.lessons}
                   onChange={handleChange}
                   placeholder="e.g. 24"
-                  min="1"
                   className={inputClass(errors.lessons)}
                 />
                 {errors.lessons && <span className="text-xs text-red-500">{errors.lessons}</span>}
@@ -287,39 +331,37 @@ export default function AddCourse() {
             <p className="text-xs text-gray-400">Select an icon that best represents this course.</p>
 
             <div className="grid grid-cols-6 gap-3">
-              {ICON_OPTIONS.map(({ emoji, label }) => (
+              {icons.map(opt => (
                 <button
-                  key={emoji}
+                  key={opt.id}
                   type="button"
-                  onClick={() => handleIconSelect(emoji)}
-                  title={label}
+                  onClick={() => handleIconSelect(opt)}
+                  title={opt.label}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer
-                    ${form.icon === emoji
+                    ${form.icon === opt.value
                       ? 'border-indigo-500 bg-indigo-50'
                       : 'border-gray-100 hover:border-indigo-200 hover:bg-gray-50'
                     }`}
                 >
-                  <span className="text-2xl">{emoji}</span>
-                  <span className="text-[0.6rem] text-gray-500 font-medium">{label}</span>
+                  {opt.type === 'emoji' ? (
+                    <span className="text-2xl">{opt.value}</span>
+                  ) : (
+                    <img src={opt.value} alt={opt.label} className="w-6 h-6 object-cover rounded" />
+                  )}
+                  <span className="text-[0.6rem] text-gray-500 font-medium">{opt.label}</span>
                 </button>
               ))}
             </div>
-            {errors.icon && <span className="text-xs text-red-500">{errors.icon}</span>}
 
-            {form.icon && (
-              <div className="flex items-center gap-3 mt-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                <span className="text-2xl">{form.icon}</span>
-                <div>
-                  <p className="text-xs text-gray-500">Selected icon preview</p>
-                  <p className="text-sm font-medium text-gray-900">{form.title || 'Course title'}</p>
-                  {form.price && (
-                    <p className="text-xs text-green-600 font-semibold mt-0.5">
-                      ₹{Number(form.price).toLocaleString('en-IN')}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
+            <div className="mt-3 flex items-center gap-3">
+              <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={handleFileChange} className="sr-only" />
+              <button type="button" onClick={handleUploadClick} className="px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+                Upload Icon
+              </button>
+              <span className="text-xs text-gray-400">PNG, JPG or SVG. Uploaded icons are added to the grid and selectable.</span>
+            </div>
+
+            {errors.icon && <span className="text-xs text-red-500">{errors.icon}</span>}
           </div>
 
           <div className="flex items-center justify-between pt-2">
@@ -365,9 +407,9 @@ export default function AddCourse() {
                 <path d="M20 6L9 17l-5-5" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Course Published!</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Course Saved!</h3>
             <p className="text-sm text-gray-500 mb-1">
-              <span className="font-medium text-gray-700">{form.title}</span> has been successfully added to the platform.
+              <span className="font-medium text-gray-700">{form.title}</span> has been saved as a draft.
             </p>
             <p className="text-sm text-green-600 font-semibold mb-6">
               ₹{Number(form.price).toLocaleString('en-IN')}
