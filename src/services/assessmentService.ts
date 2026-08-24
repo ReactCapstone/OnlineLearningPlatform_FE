@@ -12,12 +12,19 @@ import type {
 } from '../types/assessment';
 
 class AssessmentService {
-    async getAssessmentByCourse(courseId: number): Promise<Assessment> {
-        const response = await apiClient<ApiResponse<Assessment>>(
+    async getAssessmentsByCourse(courseId: number): Promise<Assessment[]> {
+        const response = await apiClient<ApiResponse<Assessment[]>>(
             `/Assessment/course/${courseId}`,
             { method: 'GET' }
         );
         return response.data;
+    }
+
+    async getAssessmentByCourse(courseId: number): Promise<Assessment> {
+        const assessments = await this.getAssessmentsByCourse(courseId);
+        const assessment = assessments[0];
+        if (!assessment) throw new Error('Assessment not found.');
+        return assessment;
     }
 
     async getMyStatus(courseId: number): Promise<MyStatusData> {
@@ -59,6 +66,13 @@ class AssessmentService {
         );
         return response.data;
 
+    }
+
+    async deleteAssessment(assessmentId: number): Promise<void> {
+        await apiClient<ApiResponse<null>>(
+            `/Assessment/${assessmentId}`,
+            { method: 'DELETE' }
+        );
     }
 
 }
