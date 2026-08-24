@@ -276,7 +276,7 @@ export default function AddCourse() {
                 </select>
                 {errors.level && <span className="text-xs text-red-500">{errors.level}</span>}
               </label>
-
+{/* 
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-gray-700">
                   Number of Lessons <span className="text-red-500">*</span>
@@ -290,7 +290,7 @@ export default function AddCourse() {
                   className={inputClass(errors.lessons)}
                 />
                 {errors.lessons && <span className="text-xs text-red-500">{errors.lessons}</span>}
-              </label>
+              </label> */}
             </div>
 
             <label className="flex flex-col gap-1.5">
@@ -401,7 +401,7 @@ export default function AddCourse() {
 
       {showSuccess && (
         <Modal onClose={() => setShowSuccess(false)} ariaLabel="Course published">
-          <div className="bg-white rounded-2xl p-8 max-w-[380px] w-full text-center shadow-2xl">
+          <div className="w-[min(100%,420px)] min-w-[280px] rounded-2xl bg-white p-8 text-center shadow-2xl">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 6L9 17l-5-5" />

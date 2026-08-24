@@ -89,6 +89,7 @@ export default function AdminSidebar() {
           <NavLink
             key={label}
             to={to}
+            end={to === '/admin/courses' || to === '/admin/dashboard'}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
               ${isActive

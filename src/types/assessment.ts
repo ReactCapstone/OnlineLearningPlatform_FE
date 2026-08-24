@@ -3,6 +3,7 @@
 export interface AssessmentOption {
     id: number;
     optionText: string;
+    isCorrect?: boolean;
 }
 
 export interface AssessmentQuestion {
@@ -14,10 +15,12 @@ export interface AssessmentQuestion {
 
 export interface Assessment {
     id: number;
+    courseId?: number;
     title: string;
     timeLimitMinutes: number;
     passPercentage: number;
     totalQuestions: number;
+    maxAttempts: number;
     questions: AssessmentQuestion[];
 }
 
