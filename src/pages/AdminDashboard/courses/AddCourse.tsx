@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import Modal from '../../../components/common/Modal/Modal'
+import CourseThumbnail from '../../../components/common/CourseThumbnail'
 import { Link } from 'react-router-dom'
 import courseService from '../../../services/courseService'
 
@@ -29,7 +30,8 @@ const CATEGORY_ID_MAP: Record<string, number> = {
 
 const LEVEL_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
 
-type IconOption = { id: string; label: string; type: 'emoji' | 'image'; value: string }
+// `custom` marks icons the admin uploaded in this session, so removing one also drops it from the grid.
+type IconOption = { id: string; label: string; type: 'emoji' | 'image'; value: string; custom?: boolean }
 
 const ICON_OPTIONS_INITIAL: IconOption[] = [
   { id: 'design', label: 'Design', type: 'emoji', value: '🎨' },
@@ -56,6 +58,11 @@ interface FormErrors {
   level?: string
 }
 
+// Top-to-bottom field order, so a failed submit reports and focuses the *first* problem on the page.
+const FIELD_ORDER: (keyof FormErrors)[] = ['title', 'category', 'price', 'level', 'lessons', 'description', 'icon']
+
+type Toast = { type: 'error' | 'success'; message: string }
+
 export default function AddCourse() {
   const [form, setForm] = useState({
     title: '',
@@ -72,8 +79,35 @@ export default function AddCourse() {
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState('')
 
+  const [toast, setToast] = useState<Toast | null>(null)
+
   const [icons, setIcons] = useState<IconOption[]>(ICON_OPTIONS_INITIAL)
   const fileInputRef = React.useRef<HTMLInputElement | null>(null)
+  const formRef = React.useRef<HTMLFormElement | null>(null)
+  const iconSectionRef = React.useRef<HTMLDivElement | null>(null)
+
+  const selectedIcon = icons.find(i => i.value === form.icon)
+
+  useEffect(() => {
+    if (!toast) return
+    const timer = setTimeout(() => setToast(null), 6000)
+    return () => clearTimeout(timer)
+  }, [toast])
+
+  // Brings the first invalid field into view, so a blocked submit is never silent.
+  const revealFirstError = (validationErrors: FormErrors) => {
+    const field = FIELD_ORDER.find(name => validationErrors[name])
+    if (!field) return
+
+    if (field === 'icon') {
+      iconSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+
+    const element = formRef.current?.elements.namedItem(field) as HTMLElement | null
+    element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    element?.focus({ preventScroll: true })
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -85,6 +119,16 @@ export default function AddCourse() {
     // set either emoji or image data URL as the icon value
     setForm(prev => ({ ...prev, icon: option.value }))
     setErrors(prev => ({ ...prev, icon: undefined }))
+  }
+
+  // Clears the icon selection. A session upload is also dropped from the grid, since
+  // removing it is the only way to undo the upload.
+  const handleRemoveIcon = () => {
+    if (selectedIcon?.custom) {
+      setIcons(prev => prev.filter(i => i.id !== selectedIcon.id))
+    }
+    setForm(prev => ({ ...prev, icon: '' }))
+    setApiError('')
   }
 
   const handleUploadClick = () => {
@@ -100,6 +144,8 @@ export default function AddCourse() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
+    // Reset the input so removing an icon and re-picking the same file still fires a change event.
+    e.target.value = ''
     if (!f) return
     // Accept only images
     const allowed = ['image/png', 'image/jpeg', 'image/svg+xml']
@@ -111,11 +157,12 @@ export default function AddCourse() {
     try {
       const dataUrl = await readFileAsDataUrl(f)
       const id = `uploaded-${Date.now()}`
-      const newIcon: IconOption = { id, label: f.name, type: 'image', value: dataUrl }
+      const newIcon: IconOption = { id, label: f.name, type: 'image', value: dataUrl, custom: true }
       setIcons(prev => [newIcon, ...prev])
       // select uploaded icon
       setForm(prev => ({ ...prev, icon: dataUrl }))
       setErrors(prev => ({ ...prev, icon: undefined }))
+      setApiError('')
     } catch (err) {
       setApiError('Failed to read uploaded file.')
       console.error(err)
@@ -132,18 +179,35 @@ export default function AddCourse() {
     if (!form.lessons) newErrors.lessons = 'Number of lessons is required.'
     else if (Number(form.lessons) < 1) newErrors.lessons = 'Must have at least 1 lesson.'
     if (!form.description.trim()) newErrors.description = 'Description is required.'
-    if (!form.icon) newErrors.icon = 'Please select an icon.'
+    // A thumbnail URL is an equally valid icon source, so only block when neither is set.
+    if (!form.icon && !form.url.trim()) newErrors.icon = 'Please select an icon or provide a thumbnail URL.'
     return newErrors
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Icon values can be long data URLs — truncate so the log stays readable.
+    console.log('[AddCourse] Publish submitted', { ...form, icon: form.icon ? `${form.icon.slice(0, 32)}…` : '' })
+
     setApiError('')
+    setToast(null)
+
     const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
+      const firstField = FIELD_ORDER.find(name => validationErrors[name])
+      const count = Object.keys(validationErrors).length
+      setToast({
+        type: 'error',
+        message: count > 1
+          ? `${count} fields need attention. ${firstField ? validationErrors[firstField] : ''}`
+          : validationErrors[firstField!]!,
+      })
+      revealFirstError(validationErrors)
+      console.warn('[AddCourse] Submit blocked by validation', validationErrors)
       return
     }
+
     setLoading(true)
     try {
       // Persist the selected emoji, uploaded image, or optional URL as the course thumbnail
@@ -163,8 +227,10 @@ export default function AddCourse() {
       })
       setShowSuccess(true)
     } catch (err: any) {
-      setApiError(err.message || 'Failed to add course.')
-      console.error('Failed to add course', err)
+      const message = err.message || 'Failed to add course.'
+      setApiError(message)
+      setToast({ type: 'error', message })
+      console.error('[AddCourse] Failed to add course', err)
     } finally {
       setLoading(false)
     }
@@ -175,6 +241,7 @@ export default function AddCourse() {
     setErrors({})
     setShowSuccess(false)
     setApiError('')
+    setToast(null)
   }
 
   const inputClass = (error?: string) =>
@@ -199,7 +266,7 @@ export default function AddCourse() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6" noValidate>
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-widest">Basic Information</h3>
@@ -324,7 +391,7 @@ export default function AddCourse() {
             </label>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+          <div ref={iconSectionRef} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-widest">
               Course Icon <span className="text-red-500">*</span>
             </h3>
@@ -348,18 +415,48 @@ export default function AddCourse() {
                   ) : (
                     <img src={opt.value} alt={opt.label} className="w-6 h-6 object-cover rounded" />
                   )}
-                  <span className="text-[0.6rem] text-gray-500 font-medium">{opt.label}</span>
+                  <span className="text-[0.6rem] text-gray-500 font-medium truncate max-w-full">{opt.label}</span>
                 </button>
               ))}
             </div>
 
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={handleFileChange} className="sr-only" />
-              <button type="button" onClick={handleUploadClick} className="px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+              <button type="button" onClick={handleUploadClick} className="px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
                 Upload Icon
               </button>
               <span className="text-xs text-gray-400">PNG, JPG or SVG. Uploaded icons are added to the grid and selectable.</span>
             </div>
+
+            {form.icon && (
+              <div className="flex items-center gap-3">
+                <div className="relative shrink-0">
+                  <CourseThumbnail
+                    src={form.icon}
+                    alt="Selected course icon"
+                    className="w-12 h-12 rounded-xl overflow-hidden bg-white border-2 border-indigo-500 text-2xl"
+                    imageClassName="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveIcon}
+                    title="Remove icon"
+                    aria-label="Remove selected icon"
+                    className="absolute -top-1.5 -right-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 shadow-sm hover:bg-red-500 hover:border-red-500 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-700">Selected icon</p>
+                  <p className="text-[0.7rem] text-gray-400 truncate">
+                    {selectedIcon ? selectedIcon.label : 'Custom icon'}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {errors.icon && <span className="text-xs text-red-500">{errors.icon}</span>}
           </div>
@@ -398,6 +495,41 @@ export default function AddCourse() {
 
         </form>
       </div>
+
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 right-6 z-50 w-full max-w-sm"
+        >
+          <div
+            className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg
+              ${toast.type === 'error'
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : 'bg-green-50 border-green-200 text-green-700'
+              }`}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="mt-0.5 shrink-0" aria-hidden="true">
+              {toast.type === 'error' ? (
+                <><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></>
+              ) : (
+                <path d="M20 6L9 17l-5-5" />
+              )}
+            </svg>
+            <span className="flex-1">{toast.message}</span>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              aria-label="Dismiss notification"
+              className="shrink-0 text-current opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {showSuccess && (
         <Modal onClose={() => setShowSuccess(false)} ariaLabel="Course published">

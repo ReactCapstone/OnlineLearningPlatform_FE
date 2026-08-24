@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout';
-import Footer from '../components/Footer';
 import progressService, { type UserCourseProgressDto } from '../services/progressService';
 
 const stats = [
