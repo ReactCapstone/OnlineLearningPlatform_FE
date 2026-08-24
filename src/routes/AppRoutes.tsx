@@ -21,6 +21,7 @@ import AdminLogin from '../pages/AdminDashboard/AdminLogin'
 import CourseList from '../pages/AdminDashboard/courses/CourseList'
 import AddCourse from '../pages/AdminDashboard/courses/AddCourse'
 import AddAssessment from '../pages/AdminDashboard/assessments/AddAssessment'
+import ViewAssessments from '../pages/AdminDashboard/assessments/ViewAssessments'
 import Categories from '../pages/AdminDashboard/categories/Categories'
 
 export default function AppRoutes() {
@@ -50,6 +51,8 @@ export default function AppRoutes() {
             <Route path="/admin/courses/list" element={<CourseList />} />
             <Route path="/admin/courses/add" element={<AddCourse />} />
             <Route path="/admin/assessments/add" element={<AddAssessment />} />
+            <Route path="/admin/assessments/view" element={<ViewAssessments />} />
+            <Route path="/admin/assessments/view/:courseId" element={<ViewAssessments />} />
             <Route path="/admin/categories" element={<Categories />} />
         </Routes>
     )
