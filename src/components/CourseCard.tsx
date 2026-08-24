@@ -4,6 +4,8 @@ import { addToWishlist, removeFromWishlist, type WishlistCourse } from '../redux
 import { selectWishlistItems } from '../redux/student/wishlistSelectors'
 import { useState } from 'react'
 import wishlistService from '../services/wishlistService'
+import enrollmentService from '../services/enrollmentService'
+import CourseThumbnail from './common/CourseThumbnail'
 
 interface Course {
   id: number
@@ -27,6 +29,7 @@ export default function CourseCard({ course }: CourseCardProps) {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
   const isWished = wishlistItems.some((item) => item.id === course.id)
   const [loading, setLoading] = useState(false)
+  const [enrolled, setEnrolled] = useState(false)
 
   const toggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -55,6 +58,22 @@ export default function CourseCard({ course }: CourseCardProps) {
       }
     } catch (err) {
       console.error('Wishlist API error', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const enroll = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (loading || enrolled) return
+
+    setLoading(true)
+    try {
+      await enrollmentService.enroll(course.id)
+      setEnrolled(true)
+    } catch (err) {
+      console.error('Enrollment API error', err)
     } finally {
       setLoading(false)
     }
@@ -90,12 +109,12 @@ export default function CourseCard({ course }: CourseCardProps) {
       )}
 
       {/* Icon */}
-      <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl shrink-0"
-        style={{ background: course.iconBg }}
-      >
-        {course.icon}
-      </div>
+      <CourseThumbnail
+        src={course.icon}
+        alt={course.title}
+        className="w-11 h-11 rounded-xl shrink-0 overflow-hidden"
+        imageClassName="h-full w-full object-cover"
+      />
 
       {/* Tags */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -120,12 +139,25 @@ export default function CourseCard({ course }: CourseCardProps) {
           </svg>
           {course.lessons} Rs.
         </div>
-        <div className="flex items-center gap-1 text-xs font-medium text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          Enroll
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </div>
+        {isAuthenticated ? (
+          <button
+            type="button"
+            onClick={enroll}
+            disabled={loading || enrolled}
+            className="flex items-center gap-1 text-xs font-medium text-indigo-500 opacity-0 transition-opacity duration-200 group-hover:opacity-100 disabled:cursor-default disabled:text-emerald-600 disabled:opacity-100"
+          >
+            {loading ? 'Enrolling...' : enrolled ? 'Enrolled' : 'Enroll'}
+            {!loading && !enrolled && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            )}
+          </button>
+        ) : (
+          <span className="text-xs font-medium text-indigo-500 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            Log in to enroll
+          </span>
+        )}
       </div>
     </Link>
   )

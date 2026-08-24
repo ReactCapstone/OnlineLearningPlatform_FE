@@ -12,6 +12,7 @@ import Assessments from '../pages/Assessments'
 import Wishlist from '../pages/Wishlist'
 import CoursePlayer from '../pages/CoursePlayer'
 import Progress from '../pages/Progress'
+import Goals from '../pages/Goals'
  import Certificate from '../pages/Certificate'
 //import CourseDetails from "../pages/CourseDetails"
 
@@ -39,6 +40,7 @@ export default function AppRoutes() {
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/progress" element={<Progress />} />
+            <Route path="/goals" element={<Goals />} />
             <Route path="/course/:courseId" element={<CoursePlayer />} /> 
            <Route path="/certificates" element={<Certificate />} />
             {/* <Route path="/course/:id" element={<CourseDetails />} />  */}

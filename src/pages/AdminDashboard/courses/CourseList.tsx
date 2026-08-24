@@ -4,6 +4,7 @@ import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import courseService from '../../../services/courseService'
 import type { CourseDto } from '../../../types/course'
 import Modal from '../../../components/common/Modal/Modal'
+import CourseThumbnail from '../../../components/common/CourseThumbnail'
 
 export default function CourseList() {
   const navigate = useNavigate()
@@ -112,10 +113,11 @@ export default function CourseList() {
                   key={course.id}
                   className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors"
                 >
-                  <img
+                  <CourseThumbnail
                     src={course.thumbnail}
                     alt={course.title}
-                    className="w-11 h-11 rounded-xl object-cover shrink-0 bg-gray-100"
+                    className="w-11 h-11 rounded-xl shrink-0 overflow-hidden bg-indigo-50"
+                    imageClassName="h-full w-full object-cover"
                   />
 
                   <div className="flex-1 min-w-0">

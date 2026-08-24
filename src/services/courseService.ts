@@ -1,6 +1,9 @@
 ﻿import apiClient from "../api/apiClient";
 import type { CourseDto, CreateCourseDto, ApiResponse } from "../types/course";
 
+// Re-exported so callers can pull the DTOs from this service, matching sectionService/lessonService.
+export type { CourseDto, CreateCourseDto, ApiResponse } from "../types/course";
+
 class CourseService {
     async getCourses(): Promise<CourseDto[]> {
         const response = await apiClient<ApiResponse<CourseDto[]>>("/Courses", {

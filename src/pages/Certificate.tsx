@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Award, Download, CheckCircle2 } from 'lucide-react'
 import jsPDF from 'jspdf'
 import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout'
+import CourseThumbnail from '../components/common/CourseThumbnail'
 import { useAppSelector } from '../redux/hooks'
 import { selectAuthUser } from '../redux/auth/authSelectors'
 import courseService from '../services/courseService'
@@ -182,10 +183,11 @@ export default function Certificate() {
                 key={course.id}
                 className="flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5"
               >
-                <img
+                <CourseThumbnail
                   src={course.thumbnail}
                   alt={course.title}
-                  className="h-40 w-full object-cover"
+                  className="h-40 w-full bg-indigo-50"
+                  imageClassName="h-full w-full object-cover"
                 />
 
                 <div className="flex flex-1 flex-col gap-4 p-6">
