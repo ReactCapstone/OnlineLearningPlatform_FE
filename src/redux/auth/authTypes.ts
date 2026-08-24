@@ -4,6 +4,7 @@ export interface LoginDto {
 }
 
 export interface RegisterDto {
+    verificationToken: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -11,6 +12,26 @@ export interface RegisterDto {
     confirmPassword: string;
     yearsOfExperience: number | null;
     areaOfExpertise: string | null;
+}
+
+export interface SendOtpDto {
+    email: string;
+}
+
+export interface SendOtpResponseData {
+    email: string;
+    expiresAt: string;
+}
+
+export interface VerifyOtpDto {
+    email: string;
+    otpCode: string;
+}
+
+export interface VerifyOtpResponseData {
+    verificationToken: string;
+    email: string;
+    expiresAt: string;
 }
 
 export interface AuthResponseData {
