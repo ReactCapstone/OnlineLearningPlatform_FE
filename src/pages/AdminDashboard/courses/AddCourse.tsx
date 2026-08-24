@@ -276,7 +276,7 @@ export default function AddCourse() {
                 </select>
                 {errors.level && <span className="text-xs text-red-500">{errors.level}</span>}
               </label>
-
+{/* 
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-gray-700">
                   Number of Lessons <span className="text-red-500">*</span>
@@ -290,7 +290,7 @@ export default function AddCourse() {
                   className={inputClass(errors.lessons)}
                 />
                 {errors.lessons && <span className="text-xs text-red-500">{errors.lessons}</span>}
-              </label>
+              </label> */}
             </div>
 
             <label className="flex flex-col gap-1.5">
