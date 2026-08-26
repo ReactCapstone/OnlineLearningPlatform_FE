@@ -13,8 +13,22 @@ import type {
 
 class AssessmentService {
     async getAssessmentsByCourse(courseId: number): Promise<Assessment[]> {
+        try {
+            const response = await apiClient<ApiResponse<Assessment[]>>(
+                `/Assessment/course/${courseId}`,
+                { method: 'GET' }
+            );
+            return response.data;
+        } catch (error) {
+            if (error instanceof Error && (error as Error & { status?: number }).status === 404) {
+                return [];
+            }
+            throw error;
+        }
+    }
+     async getAllAssessments(): Promise<Assessment[]> {
         const response = await apiClient<ApiResponse<Assessment[]>>(
-            `/Assessment/course/${courseId}`,
+            `/Assessment`,
             { method: 'GET' }
         );
         return response.data;

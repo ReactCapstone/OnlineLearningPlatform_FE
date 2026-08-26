@@ -32,7 +32,9 @@ async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Pro
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-        throw new Error(data?.message || `Request failed with status ${response.status}.`);
+        const error = new Error(data?.message || `Request failed with status ${response.status}.`);
+        Object.assign(error, { status: response.status });
+        throw error;
     }
 
     if (!data?.success) {
