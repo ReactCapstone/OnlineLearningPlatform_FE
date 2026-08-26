@@ -186,12 +186,6 @@ export default function AddCourse() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-<<<<<<< Updated upstream
-=======
-    // Icon values can be long data URLs — truncate so the log stays readable.
-    // console.log('[AddCourse] Publish submitted', { ...form, icon: form.icon ? `${form.icon.slice(0, 32)}…` : '' })
-
->>>>>>> Stashed changes
     setApiError('')
     setToast(null)
 
