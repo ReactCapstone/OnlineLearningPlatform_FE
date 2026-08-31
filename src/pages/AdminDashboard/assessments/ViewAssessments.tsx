@@ -21,14 +21,8 @@ export default function ViewAssessments() {
 			try {
 				const courseData = await courseService.getCourses()
 				const assessmentData = await Promise.all(courseData.map(async course => {
-					try {
-						const courseAssessments = await assessmentService.getAssessmentsByCourse(course.id)
-						return courseAssessments.map(assessment => ({ ...assessment, courseId: course.id }))
-					} catch (err) {
-						// A course without an assessment is expected and should not stop the list.
-						if (err instanceof Error && /not found/i.test(err.message)) return null
-						throw err
-					}
+					const courseAssessments = await assessmentService.getAssessmentsByCourse(course.id)
+					return courseAssessments.map(assessment => ({ ...assessment, courseId: course.id }))
 				}))
 				setAssessments(assessmentData.flat().filter((assessment): assessment is Assessment & { courseId: number } => assessment !== null))
 				setCourses(courseData)
@@ -142,66 +136,66 @@ export default function ViewAssessments() {
 								</div>
 							</div>
 							<div className="space-y-3 sm:pl-12">
-							{course.assessments.map(assessment => {
-								const isExpanded = expandedId === assessment.id
-								return (
-							<section key={assessment.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-								<div className="flex items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50">
-									<button
-										type="button"
-										onClick={() => setExpandedId(isExpanded ? null : assessment.id)}
-										className="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
-										aria-expanded={isExpanded}
-									>
-									<div className="min-w-0">
-										<h3 className="truncate text-base font-bold text-gray-900">{assessment.title}</h3>
-										<div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-											<span>{assessment.totalQuestions || assessment.questions.length} questions</span>
-											<span>{assessment.timeLimitMinutes} min</span>
-											<span>Pass at {assessment.passPercentage}%</span>
-																						<span>{assessment.maxAttempts === 0 ? 'Unlimited attempts' : `${assessment.maxAttempts} attempt${assessment.maxAttempts !== 1 ? 's' : ''}`}</span>
-										</div>
-									</div>
-										<span className="shrink-0 text-xl text-indigo-600">{isExpanded ? '−' : '+'}</span>
-									</button>
-									<button
-										type="button"
-										onClick={() => void handleRemove(assessment.id)}
-										disabled={deletingId === assessment.id}
-										aria-label={`Remove ${assessment.title}`}
-										className="shrink-0 rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-wait disabled:opacity-50"
-									>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-											<polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
-										</svg>
-									</button>
-								</div>
+								{course.assessments.map(assessment => {
+									const isExpanded = expandedId === assessment.id
+									return (
+										<section key={assessment.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+											<div className="flex items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50">
+												<button
+													type="button"
+													onClick={() => setExpandedId(isExpanded ? null : assessment.id)}
+													className="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
+													aria-expanded={isExpanded}
+												>
+													<div className="min-w-0">
+														<h3 className="truncate text-base font-bold text-gray-900">{assessment.title}</h3>
+														<div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+															<span>{assessment.totalQuestions || assessment.questions.length} questions</span>
+															<span>{assessment.timeLimitMinutes} min</span>
+															<span>Pass at {assessment.passPercentage}%</span>
+															<span>{assessment.maxAttempts === 0 ? 'Unlimited attempts' : `${assessment.maxAttempts} attempt${assessment.maxAttempts !== 1 ? 's' : ''}`}</span>
+														</div>
+													</div>
+													<span className="shrink-0 text-xl text-indigo-600">{isExpanded ? '−' : '+'}</span>
+												</button>
+												<button
+													type="button"
+													onClick={() => void handleRemove(assessment.id)}
+													disabled={deletingId === assessment.id}
+													aria-label={`Remove ${assessment.title}`}
+													className="shrink-0 rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-wait disabled:opacity-50"
+												>
+													<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+														<polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
+													</svg>
+												</button>
+											</div>
 
-								{isExpanded && (
-									<div className="border-t border-gray-100 bg-gray-50/70 px-6 py-5">
-										<div className="space-y-4">
-											{assessment.questions.map((question, index) => (
-												<div key={question.id} className="rounded-xl border border-gray-100 bg-white p-5">
-													<p className="text-sm font-semibold text-gray-900">
-														<span className="mr-2 text-indigo-600">Q{index + 1}</span>{question.questionText}
-													</p>
-													<div className="mt-4 grid gap-2 sm:grid-cols-2">
-														{question.options.map((option, optionIndex) => (
-															<div key={option.id} className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm ${option.isCorrect ? 'border-green-200 bg-green-50 text-green-800' : 'border-gray-100 bg-gray-50 text-gray-600'}`}>
-																<span className="font-semibold">{String.fromCharCode(65 + optionIndex)}.</span>
-																<span className="flex-1">{option.optionText}</span>
-																{option.isCorrect && <span className="text-xs font-bold text-green-600">Correct</span>}
+											{isExpanded && (
+												<div className="border-t border-gray-100 bg-gray-50/70 px-6 py-5">
+													<div className="space-y-4">
+														{assessment.questions.map((question, index) => (
+															<div key={question.id} className="rounded-xl border border-gray-100 bg-white p-5">
+																<p className="text-sm font-semibold text-gray-900">
+																	<span className="mr-2 text-indigo-600">Q{index + 1}</span>{question.questionText}
+																</p>
+																<div className="mt-4 grid gap-2 sm:grid-cols-2">
+																	{question.options.map((option, optionIndex) => (
+																		<div key={option.id} className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm ${option.isCorrect ? 'border-green-200 bg-green-50 text-green-800' : 'border-gray-100 bg-gray-50 text-gray-600'}`}>
+																			<span className="font-semibold">{String.fromCharCode(65 + optionIndex)}.</span>
+																			<span className="flex-1">{option.optionText}</span>
+																			{option.isCorrect && <span className="text-xs font-bold text-green-600">Correct</span>}
+																		</div>
+																	))}
+																</div>
 															</div>
 														))}
 													</div>
 												</div>
-											))}
-										</div>
-									</div>
-								)}
-								</section>
-								)
-							})}
+											)}
+										</section>
+									)
+								})}
 							</div>
 						</section>
 					))}

@@ -74,7 +74,7 @@ const QUICK_ACTIONS = [
   {
     label: 'Course List',
     description: 'View, manage and remove courses',
-    to: '/admin/courses/list',
+    to: '/admin/courses',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
@@ -193,7 +193,7 @@ export default function AdminHome() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-gray-900">Recent Courses</h3>
-            <Link to="/admin/courses/list" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+            <Link to="/admin/courses" className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
               View all
             </Link>
           </div>

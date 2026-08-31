@@ -176,8 +176,8 @@ export default function AddCourse() {
     if (!form.level) newErrors.level = 'Please select a level.'
     if (!form.price) newErrors.price = 'Price is required.'
     else if (Number(form.price) < 0) newErrors.price = 'Price cannot be negative.'
-    if (!form.lessons) newErrors.lessons = 'Number of lessons is required.'
-    else if (Number(form.lessons) < 1) newErrors.lessons = 'Must have at least 1 lesson.'
+    // if (!form.lessons) newErrors.lessons = 'Number of lessons is required.'
+    // else if (Number(form.lessons) < 1) newErrors.lessons = 'Must have at least 1 lesson.'
     if (!form.description.trim()) newErrors.description = 'Description is required.'
     // A thumbnail URL is an equally valid icon source, so only block when neither is set.
     if (!form.icon && !form.url.trim()) newErrors.icon = 'Please select an icon or provide a thumbnail URL.'
@@ -186,9 +186,6 @@ export default function AddCourse() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Icon values can be long data URLs — truncate so the log stays readable.
-    console.log('[AddCourse] Publish submitted', { ...form, icon: form.icon ? `${form.icon.slice(0, 32)}…` : '' })
-
     setApiError('')
     setToast(null)
 
