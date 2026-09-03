@@ -26,6 +26,11 @@ import AddLesson from '../pages/AdminDashboard/courses/AddLesson.tsx'
 import AddAssessment from '../pages/AdminDashboard/assessments/AddAssessment'
 import ViewAssessments from '../pages/AdminDashboard/assessments/ViewAssessments'
 import Categories from '../pages/AdminDashboard/categories/Categories'
+import UsersList from '../pages/AdminDashboard/users/UsersList'
+import UserDetails from '../pages/AdminDashboard/users/UserDetails'
+import NotificationsPage from '../pages/AdminDashboard/notifications/Notifications'
+import CreateAnnouncement from '../pages/AdminDashboard/notifications/CreateAnnouncement'
+import StudentNotifications from '../pages/StudentNotifications'
 
 export default function AppRoutes() {
     return (
@@ -44,7 +49,8 @@ export default function AppRoutes() {
             <Route path="/progress" element={<Progress />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/course/:courseId" element={<CoursePlayer />} /> 
-           <Route path="/certificates" element={<Certificate />} />
+            <Route path="/certificates" element={<Certificate />} />
+            <Route path="/student/notifications" element={<StudentNotifications />} />
             {/* <Route path="/course/:id" element={<CourseDetails />} />  */}
 
             {/* Admin dashboard routes */}
@@ -61,6 +67,10 @@ export default function AppRoutes() {
             <Route path="/admin/assessments/view" element={<ViewAssessments />} />
             <Route path="/admin/assessments/view/:courseId" element={<ViewAssessments />} />
             <Route path="/admin/categories" element={<Categories />} />
+            <Route path="/admin/users" element={<UsersList />} />
+            <Route path="/admin/users/:userId" element={<UserDetails />} />
+            <Route path="/admin/notifications" element={<NotificationsPage />} />
+            <Route path="/admin/notifications/create" element={<CreateAnnouncement />} />
         </Routes>
     )
 }
