@@ -4,29 +4,7 @@ import Modal from '../../../components/common/Modal/Modal'
 import CourseThumbnail from '../../../components/common/CourseThumbnail'
 import { Link } from 'react-router-dom'
 import courseService from '../../../services/courseService'
-
-const CATEGORY_OPTIONS = [
-  'Programming', 'Web Development', 'Database', 'Design', 'Frontend', 'Backend', 'AI / ML', 'DevOps',
-  'Security', 'Data', 'Mobile', 'Algorithms', 'Fullstack', 'Soft Skills',
-]
-
-// TODO: replace with real category IDs from the backend (or fetch via GET /Categories)
-const CATEGORY_ID_MAP: Record<string, number> = {
-  'Programming': 1,
-  'Web Development': 2,
-  'Database': 3,
-  'Design': 4,
-  'Frontend': 5,
-  'Backend': 6,
-  'AI / ML': 7,
-  'DevOps': 8,
-  'Security': 9,
-  'Data': 10,
-  'Mobile': 11,
-  'Algorithms': 12,
-  'Fullstack': 13,
-  'Soft Skills': 14,
-};
+import categoryService, { CATEGORY_OVERRIDES_STORAGE_KEY, type CategoryDto } from '../../../services/categoryService'
 
 const LEVEL_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
 
@@ -78,6 +56,8 @@ export default function AddCourse() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState('')
+  const [categories, setCategories] = useState<CategoryDto[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
 
   const [toast, setToast] = useState<Toast | null>(null)
 
@@ -93,6 +73,22 @@ export default function AddCourse() {
     const timer = setTimeout(() => setToast(null), 6000)
     return () => clearTimeout(timer)
   }, [toast])
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const loadedCategories = await categoryService.getCategories()
+        const overrides = JSON.parse(localStorage.getItem(CATEGORY_OVERRIDES_STORAGE_KEY) ?? '{}') as Record<string, string>
+        setCategories(loadedCategories.map(category => ({ ...category, name: overrides[String(category.id)] ?? category.name })))
+      } catch (err) {
+        setApiError(err instanceof Error ? err.message : 'Failed to load categories.')
+      } finally {
+        setCategoriesLoading(false)
+      }
+    }
+
+    void loadCategories()
+  }, [])
 
   // Brings the first invalid field into view, so a blocked submit is never silent.
   const revealFirstError = (validationErrors: FormErrors) => {
@@ -214,7 +210,7 @@ export default function AddCourse() {
         title: form.title,
         description: form.description,
         thumbnail,
-        categoryId: CATEGORY_ID_MAP[form.category],
+        categoryId: Number(form.category),
         instructorId: 1, // TODO: replace with real logged-in instructor/admin id
         price: Number(form.price),
         level: form.level,
@@ -294,9 +290,9 @@ export default function AddCourse() {
                   onChange={handleChange}
                   className={`${inputClass(errors.category)} bg-white cursor-pointer`}
                 >
-                  <option value="" disabled>Select category</option>
-                  {CATEGORY_OPTIONS.map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
+                  <option value="" disabled>{categoriesLoading ? 'Loading categories...' : 'Select category'}</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>{category.name}</option>
                   ))}
                 </select>
                 {errors.category && <span className="text-xs text-red-500">{errors.category}</span>}
@@ -401,12 +397,36 @@ export default function AddCourse() {
                   type="button"
                   onClick={() => handleIconSelect(opt)}
                   title={opt.label}
-                  className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer
+                  className={`relative flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all duration-150 cursor-pointer
                     ${form.icon === opt.value
                       ? 'border-indigo-500 bg-indigo-50'
                       : 'border-gray-100 hover:border-indigo-200 hover:bg-gray-50'
                     }`}
                 >
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    title={`Remove ${opt.label}`}
+                    aria-label={`Remove ${opt.label}`}
+                    onClick={event => {
+                      event.stopPropagation()
+                      setIcons(prev => prev.filter(icon => icon.id !== opt.id))
+                      if (form.icon === opt.value) setForm(prev => ({ ...prev, icon: '' }))
+                    }}
+                    onKeyDown={event => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        setIcons(prev => prev.filter(icon => icon.id !== opt.id))
+                        if (form.icon === opt.value) setForm(prev => ({ ...prev, icon: '' }))
+                      }
+                    }}
+                    className="absolute -right-2 -top-2 inline-flex h-5 w-5 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:border-red-500 hover:bg-red-500 hover:text-white"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </span>
                   {opt.type === 'emoji' ? (
                     <span className="text-2xl">{opt.value}</span>
                   ) : (

@@ -82,6 +82,13 @@ class AssessmentService {
 
     }
 
+    async updateAssessment(assessmentId: number, payload: QuizPayload): Promise<void> {
+        await apiClient<ApiResponse<null>>(
+            `/Assessment/${assessmentId}`,
+            { method: 'PUT', body: JSON.stringify(payload) }
+        );
+    }
+
     async deleteAssessment(assessmentId: number): Promise<void> {
         await apiClient<ApiResponse<null>>(
             `/Assessment/${assessmentId}`,

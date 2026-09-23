@@ -64,6 +64,7 @@ export default function AppRoutes() {
             <Route path="/admin/course-lessons/add" element={<AddCourseLesson />} />
             <Route path="/admin/course-lessons/:courseId/add" element={<AddLesson />} />
             <Route path="/admin/assessments/add" element={<AddAssessment />} />
+            <Route path="/admin/assessments/edit/:assessmentId" element={<AddAssessment />} />
             <Route path="/admin/assessments/view" element={<ViewAssessments />} />
             <Route path="/admin/assessments/view/:courseId" element={<ViewAssessments />} />
             <Route path="/admin/categories" element={<Categories />} />

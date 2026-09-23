@@ -17,6 +17,16 @@ export interface LessonDto {
     isPreview: boolean;
 }
 
+export interface LocalAdminLesson extends LessonDto {
+    courseId: number;
+    description: string;
+    lessonType: string;
+    status: "Draft" | "Published";
+    content: string;
+}
+
+export const ADMIN_LESSONS_STORAGE_KEY = "admin-created-lessons";
+
 interface ApiResponse<T> {
 
     success: boolean;

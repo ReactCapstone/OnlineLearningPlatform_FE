@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import Modal from '../../../components/common/Modal/Modal'
 // import { ALL_COURSES } from '../../../data/courses'
 import assessmentService from '../../../services/assessmentService'
 import courseService from '../../../services/courseService'
+import type { Assessment } from '../../../types/assessment'
 import type { CourseDto } from '../../../types/course'
 
 // Previous implementation used the local mock course list:
@@ -40,14 +41,25 @@ const EMPTY_QUESTION = (): Question => ({
   correctAnswer: '',
 })
 
+const mapAssessmentQuestions = (assessment: Assessment): Question[] => assessment.questions.map(question => ({
+  id: question.id,
+  question: question.questionText,
+  options: [...question.options.map(option => option.optionText).slice(0, 4), '', '', '', ''].slice(0, 4) as [string, string, string, string],
+  correctAnswer: question.options.find(option => option.isCorrect)?.optionText ?? '',
+}))
+
 export default function AddAssessment() {
+  const { assessmentId } = useParams()
+  const location = useLocation()
+  const isEditMode = Boolean(assessmentId)
+  const selectedAssessment = location.state?.assessment as Assessment | undefined
   const [form, setForm] = useState({
-    courseId: '',
-    title: '',
-    level: '',
-    description: '',
+    courseId: String(selectedAssessment?.courseId ?? ''),
+    title: selectedAssessment?.title ?? '',
+    level: selectedAssessment?.level ?? selectedAssessment?.difficultyLevel ?? '',
+    description: selectedAssessment?.description ?? '',
   })
-  const [questions, setQuestions] = useState<Question[]>([EMPTY_QUESTION()])
+  const [questions, setQuestions] = useState<Question[]>(selectedAssessment ? mapAssessmentQuestions(selectedAssessment) : [EMPTY_QUESTION()])
   const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [questionErrors, setQuestionErrors] = useState<Record<number, QuestionErrors>>({})
   const [loading, setLoading] = useState(false)
@@ -55,6 +67,7 @@ export default function AddAssessment() {
   const [apiError, setApiError] = useState('')
   const [courses, setCourses] = useState<CourseDto[]>([])
   const [coursesLoading, setCoursesLoading] = useState(true)
+  const [assessmentLoading, setAssessmentLoading] = useState(isEditMode && !selectedAssessment)
 
   // New implementation loads courses from the backend so submitted IDs are valid.
   useEffect(() => {
@@ -70,6 +83,31 @@ export default function AddAssessment() {
 
     void loadCourses()
   }, [])
+
+  useEffect(() => {
+    if (!assessmentId || selectedAssessment) return
+
+    const loadAssessment = async () => {
+      try {
+        const assessments = await assessmentService.getAllAssessments()
+        const assessment = assessments.find(item => item.id === Number(assessmentId))
+        if (!assessment) throw new Error('Assessment not found.')
+        setForm({
+          courseId: String(assessment.courseId ?? ''),
+          title: assessment.title,
+          level: assessment.level ?? assessment.difficultyLevel ?? '',
+          description: assessment.description ?? '',
+        })
+        setQuestions(mapAssessmentQuestions(assessment))
+      } catch (err) {
+        setApiError(err instanceof Error ? err.message : 'Failed to load assessment.')
+      } finally {
+        setAssessmentLoading(false)
+      }
+    }
+
+    void loadAssessment()
+  }, [assessmentId, selectedAssessment])
 
   // ── Form handlers ──────────────────────────────────────────────────────────
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -145,9 +183,11 @@ export default function AddAssessment() {
     if (!validate()) return
     setLoading(true)
     try {
-      const response = await assessmentService.createAssesment({
+      const payload = {
         courseId: Number(form.courseId),
         title: form.title.trim(),
+        level: form.level,
+        description: form.description.trim(),
         timeLimitMinutes: 30,
         passPercentage: 70,
         maxAttempts: 1,
@@ -159,11 +199,16 @@ export default function AddAssessment() {
             isCorrect: option === question.correctAnswer,
           })),
         })),
-      })
-      if (response) setShowSuccess(true)
+      }
+      if (assessmentId) {
+        await assessmentService.updateAssessment(Number(assessmentId), payload)
+      } else {
+        await assessmentService.createAssesment(payload)
+      }
+      setShowSuccess(true)
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Failed to publish assessment.')
-      console.error('Failed to add assessment', err)
+      setApiError(err instanceof Error ? err.message : `Failed to ${isEditMode ? 'update' : 'publish'} assessment.`)
+      console.error(`Failed to ${isEditMode ? 'update' : 'add'} assessment`, err)
     } finally {
       setLoading(false)
     }
@@ -195,8 +240,8 @@ export default function AddAssessment() {
 
         {/* Page header */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Add Assessment</h2>
-          <p className="text-sm text-gray-500 mt-1">Create a quiz for a course with multiple choice questions.</p>
+          <h2 className="text-2xl font-bold text-gray-900">{isEditMode ? 'Edit Assessment' : 'Add Assessment'}</h2>
+          <p className="text-sm text-gray-500 mt-1">{isEditMode ? 'Update the quiz details and questions.' : 'Create a quiz for a course with multiple choice questions.'}</p>
           {apiError && (
             <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {apiError}
@@ -204,7 +249,9 @@ export default function AddAssessment() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {assessmentLoading ? (
+          <div className="rounded-2xl border border-gray-100 bg-white py-16 text-center text-sm text-gray-400 shadow-sm">Loading assessment...</div>
+        ) : <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* ── Card 1: Assessment details ── */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
@@ -450,32 +497,32 @@ export default function AddAssessment() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
-                  Publishing...
+                  {isEditMode ? 'Saving...' : 'Publishing...'}
                 </>
               ) : (
                 <>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
-                  Publish Assessment
+                  {isEditMode ? 'Save Assessment' : 'Publish Assessment'}
                 </>
               )}
             </button>
           </div>
 
-        </form>
+        </form>}
       </div>
 
       {/* Success modal */}
       {showSuccess && (
         <Modal onClose={() => setShowSuccess(false)} ariaLabel="Assessment published">
-          <div className="bg-white rounded-2xl p-8 max-w-[400px] w-full text-center shadow-2xl">
+          <div className="w-[min(100%,420px)] min-w-[280px] rounded-2xl bg-white p-8 text-center shadow-2xl">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 6L9 17l-5-5" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Assessment Published!</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{isEditMode ? 'Assessment Updated!' : 'Assessment Published!'}</h3>
             <p className="text-sm text-gray-500 mb-1">
               <span className="font-medium text-gray-700">{form.title}</span> has been added
             </p>

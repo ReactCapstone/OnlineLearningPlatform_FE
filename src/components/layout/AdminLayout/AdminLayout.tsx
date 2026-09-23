@@ -4,6 +4,7 @@ import { FiChevronDown } from 'react-icons/fi'
 import { useAppDispatch } from '../../../redux/hooks'
 import { logout } from '../../../redux/auth/authSlice'
 import AdminSidebar from './AdminSidebar'
+import adminProfilePhoto from '../../../assets/images/default-user.png'
 
 interface Props {
   children: ReactNode
@@ -48,7 +49,7 @@ export default function AdminLayout({ children }: Props) {
                 className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 text-slate-700 shadow-sm transition hover:border-violet-200 hover:bg-violet-50"
               >
                 <img
-                  src="src/assets/images/default-user.png"
+                  src={adminProfilePhoto}
                   width={36}
                   height={36}
                   className="h-9 w-9 rounded-full object-cover border border-slate-200 bg-slate-100"

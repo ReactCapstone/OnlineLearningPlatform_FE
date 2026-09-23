@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import adminProfilePhoto from '../../../assets/images/default-user.png'
 
 const SIDEBAR_LINKS = [
   {
@@ -136,7 +137,7 @@ export default function AdminSidebar() {
       <div className="p-4 border-t border-gray-100">
         <div className="flex items-center gap-3">
           <img
-            src="src/assets/images/default-user.png"
+            src={adminProfilePhoto}
             height={40}
             width={40}
             className="rounded-full object-cover border border-gray-200"
