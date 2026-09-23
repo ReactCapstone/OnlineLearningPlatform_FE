@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ChevronDown, ChevronUp, Pencil } from 'lucide-react'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import assessmentService from '../../../services/assessmentService'
 import courseService from '../../../services/courseService'
@@ -156,8 +157,20 @@ export default function ViewAssessments() {
 															<span>{assessment.maxAttempts === 0 ? 'Unlimited attempts' : `${assessment.maxAttempts} attempt${assessment.maxAttempts !== 1 ? 's' : ''}`}</span>
 														</div>
 													</div>
-													<span className="shrink-0 text-xl text-indigo-600">{isExpanded ? '−' : '+'}</span>
+													{isExpanded ? (
+														<ChevronUp className="shrink-0 text-indigo-600" size={20} aria-hidden="true" />
+													) : (
+														<ChevronDown className="shrink-0 text-indigo-600" size={20} aria-hidden="true" />
+													)}
 												</button>
+												<Link
+													to={`/admin/assessments/edit/${assessment.id}`}
+													state={{ assessment }}
+													aria-label={`Edit ${assessment.title}`}
+													className="shrink-0 rounded-lg p-2 text-indigo-500 transition-colors hover:bg-indigo-50 hover:text-indigo-600"
+												>
+													<Pencil size={16} aria-hidden="true" />
+												</Link>
 												<button
 													type="button"
 													onClick={() => void handleRemove(assessment.id)}

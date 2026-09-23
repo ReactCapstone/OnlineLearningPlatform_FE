@@ -1,11 +1,17 @@
+import { useEffect, useState } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout/AdminLayout'
 import { Link } from 'react-router-dom'
-import { ALL_COURSES } from '../../data/courses'
+import courseService from '../../services/courseService'
+import assessmentService from '../../services/assessmentService'
+import CourseThumbnail from '../../components/common/CourseThumbnail'
+import categoryService, { type CategoryDto } from '../../services/categoryService'
+import sectionService from '../../services/sectionService'
+import lessonService from '../../services/lessonService'
 
-const STATS = [
+const STATS = (totalCourses: number, totalAssessments: number) => [
   {
     label: 'Total Courses',
-    value: `${ALL_COURSES.length}`,
+    value: `${totalCourses}`,
     change: '+2 this month',
     positive: true,
     icon: (
@@ -29,7 +35,7 @@ const STATS = [
   },
   {
     label: 'Total Assessments',
-    value: '36',
+    value: `${totalAssessments}`,
     change: '+5 this month',
     positive: true,
     icon: (
@@ -122,9 +128,40 @@ const QUICK_ACTIONS = [
   },
 ]
 
-const RECENT_COURSES = ALL_COURSES.slice(0, 4)
-
 export default function AdminHome() {
+  const [totalCourses, setTotalCourses] = useState(0)
+  const [totalAssessments, setTotalAssessments] = useState(0)
+  const [courses, setCourses] = useState<Awaited<ReturnType<typeof courseService.getCourses>>>([])
+  const [categories, setCategories] = useState<CategoryDto[]>([])
+  const [lessonCounts, setLessonCounts] = useState<Record<number, number>>({})
+
+  useEffect(() => {
+    const loadTotals = async () => {
+      try {
+        const [courses, assessments, categories] = await Promise.all([
+          courseService.getCourses(),
+          assessmentService.getAllAssessments(),
+          categoryService.getCategories(),
+        ])
+        setTotalCourses(courses.length)
+        setTotalAssessments(assessments.length)
+        setCourses(courses)
+        setCategories(categories.filter(category => category.name.trim().toLowerCase() !== 'string'))
+
+        const courseLessonCounts = await Promise.all(courses.map(async course => {
+          const sections = await sectionService.getSections(course.id)
+          const lessonsBySection = await Promise.all(sections.map(section => lessonService.getLessons(section.id)))
+          return [course.id, lessonsBySection.reduce((total, lessons) => total + lessons.length, 0)] as const
+        }))
+        setLessonCounts(Object.fromEntries(courseLessonCounts))
+      } catch (error) {
+        console.error('Failed to load dashboard totals', error)
+      }
+    }
+
+    void loadTotals()
+  }, [])
+
   return (
     <AdminLayout>
       <div className="space-y-8">
@@ -148,7 +185,7 @@ export default function AdminHome() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-          {STATS.map(({ label, value, change, positive, icon, color }) => (
+          {STATS(totalCourses, totalAssessments).map(({ label, value, change, positive, icon, color }) => (
             <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-500">{label}</span>
@@ -209,20 +246,25 @@ export default function AdminHome() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {RECENT_COURSES.map((course) => (
+                {courses.slice(0, 4).map((course) => (
                   <tr key={course.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{course.icon}</span>
+                        <CourseThumbnail
+                          src={course.thumbnail}
+                          alt={course.title}
+                          className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-indigo-50"
+                          imageClassName="h-full w-full object-cover"
+                        />
                         <span className="text-sm font-medium text-gray-900">{course.title}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-[0.72rem] font-semibold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
-                        {course.category}
+                        {categories.find(category => category.id === course.categoryId)?.name ?? `Category ${course.categoryId}`}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{course.lessons} lessons</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{lessonCounts[course.id] ?? course.numberOfLessons} lessons</td>
                     <td className="px-6 py-4 text-sm text-gray-600">₹{course.price.toLocaleString('en-IN')}</td>
                     <td className="px-6 py-4 text-right">
                       <Link

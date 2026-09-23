@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import AdminLayout from '../../../components/layout/AdminLayout/AdminLayout'
 import Modal from '../../../components/common/Modal/Modal'
+import { ADMIN_LESSONS_STORAGE_KEY, type LocalAdminLesson } from '../../../services/lessonService'
 
 const TOOLBAR_BUTTONS = [
   { label: 'B', command: 'bold', title: 'Bold' },
@@ -38,6 +39,7 @@ export default function AddLesson() {
   const [content, setContent] = useState('')
   const [status, setStatus] = useState<'Draft' | 'Published'>('Draft')
   const [showPreview, setShowPreview] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const runCommand = (command: string, value?: string) => {
     contentRef.current?.focus()
@@ -56,6 +58,27 @@ export default function AddLesson() {
   }
 
   const videoId = lessonType === 'Video' ? getYouTubeVideoId(content.trim()) : null
+
+  const handlePublish = () => {
+    const savedLessons = JSON.parse(localStorage.getItem(ADMIN_LESSONS_STORAGE_KEY) ?? '[]') as LocalAdminLesson[]
+    const nextLesson: LocalAdminLesson = {
+      id: Date.now(),
+      courseId: Number(courseId),
+      sectionId: 0,
+      title: title.trim() || 'Untitled lesson',
+      description,
+      lessonType,
+      content,
+      videoUrl: lessonType === 'Video' ? content : '',
+      durationSeconds: 0,
+      orderIndex: savedLessons.filter(lesson => lesson.courseId === Number(courseId)).length,
+      isPreview: false,
+      status: 'Published',
+    }
+    localStorage.setItem(ADMIN_LESSONS_STORAGE_KEY, JSON.stringify([...savedLessons, nextLesson]))
+    setStatus('Published')
+    setShowSuccess(true)
+  }
 
   return (
     <AdminLayout>
@@ -121,7 +144,7 @@ export default function AddLesson() {
             <div className="flex gap-3">
               <button type="button" onClick={() => setShowPreview(true)} className="rounded-xl border border-indigo-200 px-4 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50">Preview Lesson</button>
               <button type="button" onClick={() => setStatus('Draft')} className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">Save Draft</button>
-              <button type="button" onClick={() => setStatus('Published')} className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Publish Lesson</button>
+              <button type="button" onClick={handlePublish} className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Publish Lesson</button>
             </div>
           </div>
         </div>
@@ -159,6 +182,28 @@ export default function AddLesson() {
             <div className="mt-8 flex justify-end border-t border-gray-100 pt-5">
               <button type="button" onClick={() => setShowPreview(false)} className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500">Back to Editor</button>
             </div>
+          </div>
+        </Modal>
+      )}
+
+      {showSuccess && (
+        <Modal onClose={() => setShowSuccess(false)} ariaLabel="Lesson saved">
+          <div className="w-[min(100%,420px)] min-w-[280px] rounded-2xl bg-white p-8 text-center shadow-2xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-xl font-bold text-gray-900">Lesson Saved!</h3>
+            <p className="mb-6 text-sm text-gray-500">
+              <span className="font-medium text-gray-700">{title || 'Untitled lesson'}</span> has been published successfully.
+            </p>
+            <Link
+              to="/admin/course-lessons"
+              className="block w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 py-2.5 text-center text-sm font-semibold text-white transition-all hover:from-indigo-500 hover:to-purple-400"
+            >
+              Manage lessons
+            </Link>
           </div>
         </Modal>
       )}

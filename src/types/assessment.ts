@@ -17,6 +17,9 @@ export interface Assessment {
     id: number;
     courseId?: number;
     title: string;
+    level?: string;
+    difficultyLevel?: string;
+    description?: string;
     timeLimitMinutes: number;
     passPercentage: number;
     totalQuestions: number;
@@ -83,6 +86,8 @@ export interface Question {
 export interface QuizPayload {
   courseId: number;
   title: string;
+    level?: string;
+    description?: string;
   timeLimitMinutes: number;
   passPercentage: number;
   maxAttempts: number;
