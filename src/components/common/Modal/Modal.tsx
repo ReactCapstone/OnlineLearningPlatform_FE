@@ -20,7 +20,7 @@ export default function Modal({ children, onClose, className = '', ariaLabel = '
   }, [onClose])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-6 backdrop-blur-sm">
       <div
         className={`relative ${className}`}
         role="dialog"

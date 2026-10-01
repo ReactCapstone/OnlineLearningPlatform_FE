@@ -1,4 +1,4 @@
-import {NavLink} from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 interface Props{
     title: string;
@@ -7,8 +7,11 @@ interface Props{
 }
 
 const SidebarItem = ({title, icon: Icon, path}:Props) => {
+    const location = useLocation();
+    const isMyCourses = path === '/courses';
+
     return (
-        <NavLink to={path} className={({isActive}) => `flex items-center gap-3 px-4 py-2 rounded-lg transition-all ${isActive ? "bg-indigo-400 text-olive-100 border-1" : "text-white-soft hover:bg-gray-100"}`}>
+        <NavLink to={path} className={({isActive}) => `flex items-center gap-3 px-4 py-2 rounded-lg transition-all ${isActive || (isMyCourses && location.pathname === '/') ? "bg-indigo-400 text-olive-100 border-1" : "text-white-soft hover:bg-gray-100"}`}>
             <Icon size={20}/>
             <span className="text-sm font-medium">{title}</span>
         </NavLink>

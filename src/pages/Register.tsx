@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Modal from '../components/common/Modal/Modal'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import {
@@ -11,6 +11,7 @@ import {
   selectAuthLoading,
   selectAuthError,
 } from '../redux/auth/authSelectors'
+import enrollmentService from '../services/enrollmentService'
 
 const EXPERTISE_OPTIONS = [
   'Frontend Development',
@@ -60,16 +61,6 @@ export default function Register() {
     expertise: [] as string[],
   })
 
-  const initialFormState = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    yearsOfExperience: '',
-    areaOfExpertise: '',
-    expertise: [] as string[],
-  }
   // ---------------------------------------------
   // OTP
   // ---------------------------------------------
@@ -90,6 +81,8 @@ export default function Register() {
     useState(false)
 
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const loading =
     useAppSelector(selectAuthLoading)
@@ -313,8 +306,15 @@ export default function Register() {
       expertise: form.expertise,
     }))
     if (registerUser.fulfilled.match(result)) {
-
-      setShowSuccess(true)
+      const pendingCourseId = (location.state as { courseId?: number } | null)?.courseId
+      if (pendingCourseId) {
+        try {
+          await enrollmentService.enroll(pendingCourseId)
+        } catch (enrollmentError) {
+          console.error('Enrollment API error after registration', enrollmentError)
+        }
+      }
+      navigate('/dashboard')
     }
   }
 
@@ -426,7 +426,7 @@ export default function Register() {
         <div className="mb-8">
 
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-500 rounded-lg mb-6"
           >
 

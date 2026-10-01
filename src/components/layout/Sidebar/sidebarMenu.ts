@@ -10,14 +10,14 @@ import {
 
 export const sidebarMenu = [
     {
-        title: 'Dashboard',
-        icon: FiHome,
-        path: '/'
-    },
-    {
         title: 'My Courses',
         icon: FiBookOpen,
         path: '/courses'
+    },
+    {
+        title: 'Dashboard',
+        icon: FiHome,
+        path: '/dashboard'
     },
     {
         title: 'Progress',

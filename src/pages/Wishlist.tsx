@@ -4,6 +4,7 @@ import { selectWishlistItems } from '../redux/student/wishlistSelectors';
 import wishlistService from '../services/wishlistService';
 import { setWishlist, removeFromWishlist } from '../redux/student/wishlistSlice';
 import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout';
+import { Link } from 'react-router-dom';
 
 const Wishlist = () => {
   const wishlistItems = useAppSelector(selectWishlistItems);
@@ -130,6 +131,12 @@ const Wishlist = () => {
                       ${(course.price ?? 0).toFixed(2)}
                     </div>
                   </div>
+                  <Link
+                    to={`/course/${course.id}`}
+                    className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-indigo-500"
+                  >
+                    Start Learning
+                  </Link>
                 </div>
               </div>
             ))}
