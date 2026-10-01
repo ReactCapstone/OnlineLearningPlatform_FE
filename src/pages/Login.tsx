@@ -1,8 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { loginUser } from '../redux/auth/authSlice';
 import { selectAuthError, selectAuthLoading } from '../redux/auth/authSelectors';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { useState } from 'react';
+import enrollmentService from '../services/enrollmentService';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ export default function Login() {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const loading = useAppSelector(selectAuthLoading);
   const error = useAppSelector(selectAuthError);
 
@@ -17,7 +19,15 @@ export default function Login() {
     e.preventDefault();
     const result = await dispatch(loginUser({ email, password }));
     if (loginUser.fulfilled.match(result)) {
-      navigate('/');
+      const pendingCourseId = (location.state as { courseId?: number } | null)?.courseId
+      if (pendingCourseId) {
+        try {
+          await enrollmentService.enroll(pendingCourseId)
+        } catch (enrollmentError) {
+          console.error('Enrollment API error after login', enrollmentError)
+        }
+      }
+      navigate('/dashboard');
     }
   };
 
@@ -69,7 +79,7 @@ export default function Login() {
           </label>
 
           <Link
-              to="/"
+              to="/dashboard"
               onClick={handleLogin}
               aria-disabled={loading}
               className="mt-1 w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md shadow-indigo-500/20 text-center block"
@@ -102,6 +112,7 @@ export default function Login() {
           <p className="text-sm text-gray-500 mb-3">Don't have an account yet?</p>
           <Link
             to="/register"
+            state={location.state}
             className="block w-full py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white text-sm font-semibold transition-all duration-200 shadow-md shadow-indigo-500/20"
           >
             Sign up for free

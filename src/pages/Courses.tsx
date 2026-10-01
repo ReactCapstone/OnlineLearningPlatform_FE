@@ -75,26 +75,27 @@ export default function Courses() {
   }, [courses, active, query]);
 
   return (
-    <div className="flex min-h-screen bg-slate-100" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="flex h-screen overflow-hidden bg-slate-100" style={{ fontFamily: "'Inter', sans-serif" }}>
 
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 
-        {/* Page header */}
-        <div className="border-b border-slate-200 bg-white px-8 pt-12 pb-10 shadow-sm">
-          <span className="inline-block text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full mb-3.5">
-            All courses
-          </span>
-          <h1 className="text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold text-slate-900 mb-2">
-            Expand your skillset
-          </h1>
-          <p className="text-base text-slate-600">
-            {courses.length} courses across design, engineering, data, and more.
-          </p>
-        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {/* Page header */}
+          <div className="border-b border-slate-200 bg-white px-8 pt-12 pb-10 shadow-sm">
+            <span className="inline-block text-[0.72rem] font-semibold tracking-[0.12em] uppercase text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full mb-3.5">
+              All courses
+            </span>
+            <h1 className="text-[clamp(1.8rem,4vw,2.8rem)] font-extrabold text-slate-900 mb-2">
+              Expand your skillset
+            </h1>
+            <p className="text-base text-slate-600">
+              {courses.length} courses across design, engineering, data, and more.
+            </p>
+          </div>
 
         {/* Filter bar with search */}
         <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 px-8 py-3 shadow-sm">
@@ -128,7 +129,7 @@ export default function Courses() {
         </div>
 
         {/* Grid */}
-        <div className="px-8 pt-8 pb-20">
+          <div className="px-8 pt-8 pb-20">
           <p className="text-sm text-slate-600 mb-6">
             Showing <strong className="text-slate-900">{filtered.length}</strong> course{filtered.length !== 1 ? 's' : ''}
             {active !== 'All' ? ` in ${active}` : ''}
@@ -144,6 +145,7 @@ export default function Courses() {
               ))}
             </div>
           )}
+          </div>
         </div>
 
       </div>

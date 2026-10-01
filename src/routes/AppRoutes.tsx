@@ -35,7 +35,8 @@ import StudentNotifications from '../pages/StudentNotifications'
 export default function AppRoutes() {
     return (
         <Routes>
-            <Route path="/" element={<DashboardHome />} />
+            <Route path="/" element={<Courses />} />
+            <Route path="/dashboard" element={<DashboardHome />} />
             <Route path="/home" element={<Home />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/all-courses" element={<AllCourses />} />

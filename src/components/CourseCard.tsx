@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { addToWishlist, removeFromWishlist, type WishlistCourse } from '../redux/student/wishlistSlice'
 import { selectWishlistItems } from '../redux/student/wishlistSelectors'
@@ -25,6 +25,7 @@ interface CourseCardProps {
 
 export default function CourseCard({ course }: CourseCardProps) {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const wishlistItems = useAppSelector(selectWishlistItems)
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
   const isWished = wishlistItems.some((item) => item.id === course.id)
@@ -67,6 +68,10 @@ export default function CourseCard({ course }: CourseCardProps) {
     e.preventDefault()
     e.stopPropagation()
     if (loading || enrolled) return
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: `/courses`, courseId: course.id } })
+      return
+    }
 
     setLoading(true)
     try {
@@ -154,9 +159,13 @@ export default function CourseCard({ course }: CourseCardProps) {
             )}
           </button>
         ) : (
-          <span className="text-xs font-medium text-indigo-500 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <button
+            type="button"
+            onClick={enroll}
+            className="text-xs font-medium text-indigo-500 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+          >
             Log in to enroll
-          </span>
+          </button>
         )}
       </div>
     </Link>
